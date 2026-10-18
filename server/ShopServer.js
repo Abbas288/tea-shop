@@ -1,8 +1,9 @@
 import express from 'express'
 
 /**
- * The web server of the shop. It serves the pages in the public folder, with the shop as the start page.
- * A page can be asked for without .html, such as /cart.
+ * The web server of the shop, and its only part that knows HTTP. It serves the pages in the public folder,
+ * with the shop as the start page, and turns each API request into a call to the controller and its result
+ * into an answer. A page can be asked for without .html, such as /cart.
  */
 export class ShopServer {
   #app = express()
@@ -11,9 +12,11 @@ export class ShopServer {
    * Nothing is served before listen is called, except through requestHandler.
    *
    * @param {string} publicFolder - The folder with the pages.
+   * @param {import('./controller/ShopController.js').ShopController} shopController - The customer's use cases.
    */
-  constructor(publicFolder) {
+  constructor(publicFolder, shopController) {
     this.#app.use(express.static(publicFolder, { index: 'shop.html', extensions: ['html'] }))
+    this.#app.get('/api/products', (_request, response) => response.json(shopController.listProducts()))
   }
 
   /**

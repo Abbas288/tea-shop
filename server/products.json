@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Earl Grey",
+    "description": "Black tea flavoured with oil of bergamot. Fresh and classic.",
+    "price": 79,
+    "image": "/images/teas/earl-grey.webp"
+  },
+  {
+    "name": "Black Jasmine",
+    "description": "Assam black tea mixed with dried jasmine flowers.",
+    "price": 95,
+    "image": "/images/teas/black-jasmine.webp"
+  },
+  {
+    "name": "Rooibos",
+    "description": "Red bush tea from South Africa. Mild, sweet and without caffeine.",
+    "price": 69,
+    "image": "/images/teas/rooibos.webp"
+  },
+  {
+    "name": "Gunpowder Green",
+    "description": "Green tea rolled into small pellets, with a light smoky taste.",
+    "price": 85,
+    "image": "/images/teas/gunpowder-green.webp"
+  }
+]
