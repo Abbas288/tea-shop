@@ -1,4 +1,4 @@
-import { ApiError } from './ApiError.js'
+import { ApiError } from '../model/ApiError.js'
 
 /**
  * What the customer can do on the shop page.
@@ -10,8 +10,8 @@ export class ShopPage {
   /**
    * Nothing is fetched until show is called.
    *
-   * @param {import('./ApiClient.js').ApiClient} api - Fetches the teas.
-   * @param {import('./ProductList.js').ProductList} productList - Shows them.
+   * @param {import('../model/ApiClient.js').ApiClient} api - Fetches the teas.
+   * @param {import('../view/ProductList.js').ProductList} productList - Shows them.
    */
   constructor(api, productList) {
     this.#api = api

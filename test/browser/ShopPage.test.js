@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { ApiError } from '../../public/js/ApiError.js'
-import { ShopPage } from '../../public/js/ShopPage.js'
+import { ApiError } from '../../public/js/model/ApiError.js'
+import { ShopPage } from '../../public/js/controller/ShopPage.js'
 
 /**
  * A product list that only records what it was asked to show.

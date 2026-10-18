@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ApiClient } from '../../public/js/ApiClient.js'
-import { ApiError } from '../../public/js/ApiError.js'
-import { Product } from '../../public/js/Product.js'
+import { ApiClient } from '../../public/js/model/ApiClient.js'
+import { ApiError } from '../../public/js/model/ApiError.js'
+import { Product } from '../../public/js/model/Product.js'
 
 const rooibos = { name: 'Rooibos', description: 'Red bush tea.', price: 69, image: '/images/teas/rooibos.webp' }
 
