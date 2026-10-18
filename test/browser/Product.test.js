@@ -20,6 +20,6 @@ describe('Product in the browser', () => {
   })
 
   it.each([undefined, '69', 0, 69.5])('refuses the price %j', (price) => {
-    expect(() => new Product({ ...rooibos, price })).toThrow(new TypeError('A product needs a price in whole kronor.'))
+    expect(() => new Product({ ...rooibos, price })).toThrow(new TypeError('A price must be a positive integer.'))
   })
 })

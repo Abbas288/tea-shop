@@ -40,10 +40,8 @@ describe('Product', () => {
     expect(() => new Product({ ...earlGrey, price })).toThrow(new TypeError('A product needs a price.'))
   })
 
-  it.each([0, -5, 79.5, Number.NaN])('refuses the price %j, which is not whole kronor more than 0', (price) => {
-    expect(() => new Product({ ...earlGrey, price })).toThrow(
-      new RangeError('A price must be a whole number of kronor, more than 0.')
-    )
+  it.each([0, -5, 79.5, Number.NaN])('refuses the price %j, which is not a positive integer', (price) => {
+    expect(() => new Product({ ...earlGrey, price })).toThrow(new RangeError('A price must be a positive integer.'))
   })
 
   it('refuses to be created without details', () => {

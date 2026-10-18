@@ -13,10 +13,10 @@ export class Product {
    * @param {object} details - The tea.
    * @param {string} details.name - Such as "Earl Grey", without spaces at the start or end.
    * @param {string} details.description - One or two short sentences.
-   * @param {number} details.price - Whole kronor, more than 0.
+   * @param {number} details.price - A positive integer.
    * @param {string} details.image - Path to the picture, such as "/images/teas/earl-grey.webp".
    * @throws {TypeError} If a value is missing, empty or of the wrong type, or the name starts or ends with a space.
-   * @throws {RangeError} If the price is not a whole number of kronor more than 0.
+   * @throws {RangeError} If the price is not a positive integer.
    */
   constructor({ name, description, price, image } = {}) {
     this.#name = this.#requireName(name)
@@ -40,7 +40,12 @@ export class Product {
    * @returns {{ name: string, description: string, price: number, image: string }} A plain copy.
    */
   toJSON() {
-    return { name: this.#name, description: this.#description, price: this.#price, image: this.#image }
+    return {
+      name: this.#name,
+      description: this.#description,
+      price: this.#price,
+      image: this.#image,
+    }
   }
 
   /**
@@ -75,7 +80,7 @@ export class Product {
   }
 
   /**
-   * Whole kronor avoid rounding errors when an order is added up.
+   * An integer price avoids rounding errors when an order is added up.
    *
    * @param {*} value - The value to check.
    * @returns {number} The value.
@@ -86,7 +91,7 @@ export class Product {
     }
 
     if (!Number.isInteger(value) || value <= 0) {
-      throw new RangeError('A price must be a whole number of kronor, more than 0.')
+      throw new RangeError('A price must be a positive integer.')
     }
 
     return value

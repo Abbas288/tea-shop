@@ -14,9 +14,9 @@ export class Product {
    * @param {object} details - One tea from the API.
    * @param {string} details.name - Such as "Earl Grey".
    * @param {string} details.description - One or two short sentences.
-   * @param {number} details.price - Whole kronor.
+   * @param {number} details.price - A positive integer.
    * @param {string} details.image - Path to the picture.
-   * @throws {TypeError} If a value is missing or of the wrong type.
+   * @throws {TypeError} If a value is missing or of the wrong type, or the price is not a positive integer.
    */
   constructor({ name, description, price, image } = {}) {
     this.#name = this.#requireText(name, 'name')
@@ -44,9 +44,9 @@ export class Product {
   }
 
   /**
-   * Whole kronor for one bag.
+   * Kronor for one bag.
    *
-   * @returns {number} The price.
+   * @returns {number} A positive integer.
    */
   get price() {
     return this.#price
@@ -77,14 +77,14 @@ export class Product {
   }
 
   /**
-   * A whole number of kronor more than 0.
+   * A positive integer.
    *
    * @param {*} value - The value to check.
    * @returns {number} The value.
    */
   #requirePrice(value) {
     if (!Number.isInteger(value) || value <= 0) {
-      throw new TypeError('A product needs a price in whole kronor.')
+      throw new TypeError('A price must be a positive integer.')
     }
 
     return value
