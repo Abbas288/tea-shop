@@ -17,6 +17,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "1dv610-laboration-2": "github:rosa24-bth/1DV610-laboration-2#laboration-2",
     "express": "^5.3.0"
   },
   "devDependencies": {
