@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>Checkout · Tea Shop</title>
+    <link href="/vendor/furni/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/vendor/furni/css/style.css" rel="stylesheet" />
+    <link href="/css/shop.css" rel="stylesheet" />
+  </head>
+  <body>
+    <nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" aria-label="Tea Shop navigation">
+      <div class="container">
+        <a class="navbar-brand" href="/">Tea Shop<span>.</span></a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#main-menu"
+          aria-controls="main-menu"
+          aria-expanded="false"
+          aria-label="Show the menu"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="main-menu">
+          <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
+            <li><a class="nav-link" href="/">Shop</a></li>
+            <li><a class="nav-link" href="/track">Track order</a></li>
+          </ul>
+          <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
+            <li>
+              <a class="nav-link" href="/cart"><img src="/vendor/furni/images/cart.svg" alt="Cart" /></a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="hero">
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col-lg-5">
+            <div class="intro-excerpt">
+              <h1>Checkout</h1>
+              <p class="mb-4">This is a demo shop: no real payment is made.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="untree_co-section">
+      <div class="container">
+        <form class="row" id="checkout-form" method="post" novalidate>
+          <div class="col-md-6 mb-5 mb-md-0">
+            <h2 class="h3 mb-3 text-black">Delivery details</h2>
+            <div class="p-3 p-lg-5 border bg-white">
+              <div class="mb-3">
+                <label for="name" class="text-black">Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="name" name="name" autocomplete="name" required />
+              </div>
+              <div class="mb-3">
+                <label for="email" class="text-black">Email address <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="email" name="email" autocomplete="email" required />
+              </div>
+              <div class="mb-3">
+                <label for="street" class="text-black">Street address <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="street"
+                  name="street"
+                  autocomplete="address-line1"
+                  required
+                />
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3 mb-md-0">
+                  <label for="postal-code" class="text-black">Postal code <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="postal-code"
+                    name="postalCode"
+                    autocomplete="postal-code"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="city" class="text-black">City <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="city"
+                    name="city"
+                    autocomplete="address-level2"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <h2 class="h3 mb-3 text-black">Your order</h2>
+            <div class="p-3 p-lg-5 border bg-white">
+              <table class="table site-block-order-table mb-5">
+                <thead>
+                  <tr>
+                    <th>Tea</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody id="order-lines">
+                  <tr>
+                    <td>Tea name <strong class="mx-2">x</strong> 1</td>
+                    <td>0 kr</td>
+                  </tr>
+                  <tr>
+                    <td class="text-black fw-bold"><strong>Subtotal</strong></td>
+                    <td class="text-black">0 kr</td>
+                  </tr>
+                  <tr>
+                    <td class="text-black fw-bold"><strong>Discount</strong></td>
+                    <td class="text-black">0 kr</td>
+                  </tr>
+                  <tr>
+                    <td class="text-black fw-bold"><strong>Order total</strong></td>
+                    <td class="text-black fw-bold"><strong>0 kr</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+              <p class="border p-3 mb-5">This is a demo shop. No real payment is made, and no tea is sent.</p>
+              <button class="btn btn-black btn-lg py-3 w-100" type="submit">Place order</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <footer class="footer-section">
+      <div class="container relative">
+        <div class="border-top copyright">
+          <div class="row pt-4">
+            <div class="col-lg-6">
+              <p class="mb-2 text-center text-lg-start">
+                Tea Shop is a demo. Design by <a href="https://untree.co">Untree.co</a>, distributed by
+                <a href="https://themewagon.com">ThemeWagon</a> (CC BY 3.0).
+              </p>
+            </div>
+            <div class="col-lg-6 text-center text-lg-end">
+              <ul class="list-unstyled d-inline-flex ms-auto">
+                <li class="me-4"><a href="mailto:tea-shop@example.com">Contact</a></li>
+                <li><a href="/admin-login">Admin</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/vendor/furni/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

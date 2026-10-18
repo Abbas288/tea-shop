@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>Track order · Tea Shop</title>
+    <link href="/vendor/furni/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/vendor/furni/css/style.css" rel="stylesheet" />
+    <link href="/css/shop.css" rel="stylesheet" />
+  </head>
+  <body>
+    <nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" aria-label="Tea Shop navigation">
+      <div class="container">
+        <a class="navbar-brand" href="/">Tea Shop<span>.</span></a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#main-menu"
+          aria-controls="main-menu"
+          aria-expanded="false"
+          aria-label="Show the menu"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="main-menu">
+          <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
+            <li><a class="nav-link" href="/">Shop</a></li>
+            <li class="active"><a class="nav-link" href="/track" aria-current="page">Track order</a></li>
+          </ul>
+          <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
+            <li>
+              <a class="nav-link" href="/cart"><img src="/vendor/furni/images/cart.svg" alt="Cart" /></a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="hero">
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col-lg-5">
+            <div class="intro-excerpt">
+              <h1>Track your order</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="untree_co-section">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-md-8">
+            <div class="p-3 p-lg-5 border bg-white">
+              <p class="mb-1">Order <strong id="order-number">-</strong></p>
+              <p class="mb-1">Status: <strong id="order-status">received</strong></p>
+              <p class="text-muted small mb-4">Last updated: <span id="last-updated">-</span></p>
+              <table class="table site-block-order-table mb-0">
+                <thead>
+                  <tr>
+                    <th>Step</th>
+                    <th>Done</th>
+                  </tr>
+                </thead>
+                <tbody id="steps">
+                  <tr>
+                    <td>received</td>
+                    <td>yes</td>
+                  </tr>
+                  <tr>
+                    <td>packed</td>
+                    <td>no</td>
+                  </tr>
+                  <tr>
+                    <td>shipped</td>
+                    <td>no</td>
+                  </tr>
+                  <tr>
+                    <td>delivered</td>
+                    <td>no</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer-section">
+      <div class="container relative">
+        <div class="border-top copyright">
+          <div class="row pt-4">
+            <div class="col-lg-6">
+              <p class="mb-2 text-center text-lg-start">
+                Tea Shop is a demo. Design by <a href="https://untree.co">Untree.co</a>, distributed by
+                <a href="https://themewagon.com">ThemeWagon</a> (CC BY 3.0).
+              </p>
+            </div>
+            <div class="col-lg-6 text-center text-lg-end">
+              <ul class="list-unstyled d-inline-flex ms-auto">
+                <li class="me-4"><a href="mailto:tea-shop@example.com">Contact</a></li>
+                <li><a href="/admin-login">Admin</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/vendor/furni/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

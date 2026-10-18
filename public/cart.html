@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>Cart · Tea Shop</title>
+    <link href="/vendor/furni/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/vendor/furni/css/style.css" rel="stylesheet" />
+    <link href="/css/shop.css" rel="stylesheet" />
+  </head>
+  <body>
+    <nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" aria-label="Tea Shop navigation">
+      <div class="container">
+        <a class="navbar-brand" href="/">Tea Shop<span>.</span></a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#main-menu"
+          aria-controls="main-menu"
+          aria-expanded="false"
+          aria-label="Show the menu"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="main-menu">
+          <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
+            <li><a class="nav-link" href="/">Shop</a></li>
+            <li><a class="nav-link" href="/track">Track order</a></li>
+          </ul>
+          <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
+            <li>
+              <a class="nav-link" href="/cart"><img src="/vendor/furni/images/cart.svg" alt="Cart" /></a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="hero">
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col-lg-5">
+            <div class="intro-excerpt">
+              <h1>Cart</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="untree_co-section before-footer-section">
+      <div class="container">
+        <div class="row mb-5">
+          <div class="col-md-12">
+            <div class="site-blocks-table">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th class="product-thumbnail">Image</th>
+                    <th class="product-name">Tea</th>
+                    <th class="product-price">Price</th>
+                    <th class="product-quantity">Quantity</th>
+                    <th class="product-total">Total</th>
+                    <th class="product-remove">Remove</th>
+                  </tr>
+                </thead>
+                <tbody id="cart-items">
+                  <tr>
+                    <td class="product-thumbnail">
+                      <img src="/images/tea-placeholder.svg" alt="" class="img-fluid" />
+                    </td>
+                    <td class="product-name" data-label="Tea"><h2 class="h5 text-black">Tea name</h2></td>
+                    <td data-label="Price">0 kr</td>
+                    <td data-label="Quantity">
+                      <div
+                        class="input-group mb-3 d-flex align-items-center quantity-container"
+                        style="max-width: 120px"
+                      >
+                        <button class="btn btn-outline-black decrease" type="button" aria-label="One less">
+                          &minus;
+                        </button>
+                        <input
+                          type="text"
+                          class="form-control text-center quantity-amount"
+                          value="1"
+                          aria-label="Quantity"
+                        />
+                        <button class="btn btn-outline-black increase" type="button" aria-label="One more">
+                          &plus;
+                        </button>
+                      </div>
+                    </td>
+                    <td data-label="Total">0 kr</td>
+                    <td data-label="Remove">
+                      <button class="btn btn-black btn-sm" type="button" aria-label="Remove">X</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-5 mb-md-0">
+            <div class="row mb-5">
+              <div class="col-md-6">
+                <a class="btn btn-outline-black btn-sm w-100" href="/">Continue shopping</a>
+              </div>
+            </div>
+            <form class="row" id="discount-form">
+              <div class="col-md-12">
+                <label class="text-black h4" for="discount-code">Discount code</label>
+                <p>Enter your discount code if you have one.</p>
+              </div>
+              <div class="col-md-8 mb-3 mb-md-0">
+                <input
+                  type="text"
+                  class="form-control py-3"
+                  id="discount-code"
+                  name="code"
+                  placeholder="Discount code"
+                />
+              </div>
+              <div class="col-md-4">
+                <button class="btn btn-black" type="submit">Apply</button>
+              </div>
+            </form>
+          </div>
+          <div class="col-md-6 ps-md-5">
+            <div class="row justify-content-end">
+              <div class="col-md-7">
+                <div class="row">
+                  <div class="col-md-12 text-md-end border-bottom mb-5">
+                    <h3 class="text-black h4 text-uppercase">Cart totals</h3>
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <div class="col-6"><span class="text-black">Subtotal</span></div>
+                  <div class="col-6 text-end"><strong class="text-black">0 kr</strong></div>
+                </div>
+                <div class="row mb-3">
+                  <div class="col-6"><span class="text-black">Discount</span></div>
+                  <div class="col-6 text-end"><strong class="text-black">0 kr</strong></div>
+                </div>
+                <div class="row mb-5">
+                  <div class="col-6"><span class="text-black">Total</span></div>
+                  <div class="col-6 text-end"><strong class="text-black">0 kr</strong></div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12">
+                    <a class="btn btn-black btn-lg py-3 w-100" href="/checkout">Proceed to checkout</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer-section">
+      <div class="container relative">
+        <div class="border-top copyright">
+          <div class="row pt-4">
+            <div class="col-lg-6">
+              <p class="mb-2 text-center text-lg-start">
+                Tea Shop is a demo. Design by <a href="https://untree.co">Untree.co</a>, distributed by
+                <a href="https://themewagon.com">ThemeWagon</a> (CC BY 3.0).
+              </p>
+            </div>
+            <div class="col-lg-6 text-center text-lg-end">
+              <ul class="list-unstyled d-inline-flex ms-auto">
+                <li class="me-4"><a href="mailto:tea-shop@example.com">Contact</a></li>
+                <li><a href="/admin-login">Admin</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/vendor/furni/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

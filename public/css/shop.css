@@ -1,0 +1,64 @@
+/*
+ * Our own rules for the shop pages. This file loads after Furni's style.css and overrides it where Furni
+ * falls short. Furni's own files in vendor/furni stay unchanged.
+ */
+
+/*
+ * Overrides Furni: .site-blocks-table is wider than a phone screen, so Quantity, Total and Remove only
+ * showed after scrolling inside the table. Below 768px each row becomes a block of its own, and each cell
+ * shows its column name from data-label in front of the value.
+ */
+@media (max-width: 767.98px) {
+  .site-blocks-table thead {
+    display: none;
+  }
+
+  .site-blocks-table table,
+  .site-blocks-table tbody,
+  .site-blocks-table tr {
+    display: block;
+    width: 100%;
+  }
+
+  .site-blocks-table .table > tbody {
+    border-top: 0;
+  }
+
+  .site-blocks-table tr {
+    padding: 1rem 0;
+    border-bottom: 1px solid #dce5e4;
+  }
+
+  .site-blocks-table td,
+  .site-blocks-table tbody tr:first-child td {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    width: 100%;
+    padding: 0.5rem 0;
+    text-align: left;
+    border: 0 !important;
+  }
+
+  .site-blocks-table td[data-label]::before {
+    content: attr(data-label);
+    min-width: 6rem;
+    font-weight: 600;
+  }
+
+  .site-blocks-table .product-thumbnail img {
+    max-width: 120px;
+  }
+}
+
+/*
+ * Overrides Furni: the add-to-cart icon on .product-item only shows on hover, so it never shows on a touch
+ * screen. On a device that cannot hover, it shows all the time.
+ */
+@media (hover: none) {
+  .product-section .product-item .icon-cross {
+    bottom: 0;
+    opacity: 1;
+    visibility: visible;
+  }
+}
