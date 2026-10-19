@@ -31,7 +31,9 @@
           </ul>
           <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
             <li>
-              <a class="nav-link" href="cart"><img src="vendor/furni/images/cart.svg" alt="Cart" /></a>
+              <a class="nav-link" href="cart" aria-current="page"
+                ><img src="vendor/furni/images/cart.svg" alt="Cart"
+              /></a>
             </li>
           </ul>
         </div>
@@ -54,6 +56,7 @@
       <div class="container">
         <div class="row mb-5">
           <div class="col-md-12">
+            <p class="text-center" id="cart-message" role="status">Loading the cart...</p>
             <div class="site-blocks-table">
               <table class="table">
                 <thead>
@@ -66,38 +69,7 @@
                     <th class="product-remove">Remove</th>
                   </tr>
                 </thead>
-                <tbody id="cart-items">
-                  <tr>
-                    <td class="product-thumbnail">
-                      <img src="images/tea-placeholder.svg" alt="" class="img-fluid" />
-                    </td>
-                    <td class="product-name" data-label="Tea"><h2 class="h5 text-black">Tea name</h2></td>
-                    <td data-label="Price">0 kr</td>
-                    <td data-label="Quantity">
-                      <div
-                        class="input-group mb-3 d-flex align-items-center quantity-container"
-                        style="max-width: 120px"
-                      >
-                        <button class="btn btn-outline-black decrease" type="button" aria-label="One less">
-                          &minus;
-                        </button>
-                        <input
-                          type="text"
-                          class="form-control text-center quantity-amount"
-                          value="1"
-                          aria-label="Quantity"
-                        />
-                        <button class="btn btn-outline-black increase" type="button" aria-label="One more">
-                          &plus;
-                        </button>
-                      </div>
-                    </td>
-                    <td data-label="Total">0 kr</td>
-                    <td data-label="Remove">
-                      <button class="btn btn-black btn-sm" type="button" aria-label="Remove">X</button>
-                    </td>
-                  </tr>
-                </tbody>
+                <tbody id="cart-lines"></tbody>
               </table>
             </div>
           </div>
@@ -133,24 +105,31 @@
               <div class="col-md-7">
                 <div class="row">
                   <div class="col-md-12 text-md-end border-bottom mb-5">
-                    <h3 class="text-black h4 text-uppercase">Cart totals</h3>
+                    <h2 class="text-black h4 text-uppercase">Cart totals</h2>
                   </div>
                 </div>
                 <div class="row mb-3">
                   <div class="col-6"><span class="text-black">Subtotal</span></div>
-                  <div class="col-6 text-end"><strong class="text-black">0 kr</strong></div>
+                  <div class="col-6 text-end"><strong class="text-black" id="cart-subtotal">0 kr</strong></div>
                 </div>
                 <div class="row mb-3">
                   <div class="col-6"><span class="text-black">Discount</span></div>
-                  <div class="col-6 text-end"><strong class="text-black">0 kr</strong></div>
+                  <div class="col-6 text-end"><strong class="text-black" id="cart-discount">0 kr</strong></div>
                 </div>
                 <div class="row mb-5">
                   <div class="col-6"><span class="text-black">Total</span></div>
-                  <div class="col-6 text-end"><strong class="text-black">0 kr</strong></div>
+                  <div class="col-6 text-end"><strong class="text-black" id="cart-total">0 kr</strong></div>
                 </div>
                 <div class="row">
                   <div class="col-md-12">
-                    <a class="btn btn-black btn-lg py-3 w-100" href="checkout">Proceed to checkout</a>
+                    <a
+                      class="btn btn-black btn-lg py-3 w-100 disabled"
+                      href="checkout"
+                      id="checkout-link"
+                      aria-disabled="true"
+                      tabindex="-1"
+                      >Proceed to checkout</a
+                    >
                   </div>
                 </div>
               </div>
@@ -158,6 +137,22 @@
           </div>
         </div>
       </div>
+      <template id="cart-line-template">
+        <tr>
+          <td class="product-thumbnail"><img class="img-fluid line-image" src="" alt="" /></td>
+          <td class="product-name" data-label="Tea"><h2 class="h5 text-black line-name"></h2></td>
+          <td class="line-price" data-label="Price"></td>
+          <td data-label="Quantity">
+            <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px">
+              <button class="btn btn-outline-black decrease" type="button">&minus;</button>
+              <input type="text" class="form-control text-center quantity-amount" inputmode="numeric" />
+              <button class="btn btn-outline-black increase" type="button">&plus;</button>
+            </div>
+          </td>
+          <td class="line-total" data-label="Total"></td>
+          <td data-label="Remove"><button class="btn btn-black btn-sm remove" type="button">X</button></td>
+        </tr>
+      </template>
     </main>
 
     <footer class="footer-section">
@@ -167,7 +162,10 @@
             <div class="col-lg-6">
               <p class="mb-2 text-center text-lg-start">
                 Tea Shop is a demo. Design by <a href="https://untree.co">Untree.co</a>, distributed by
-                <a href="https://themewagon.com">ThemeWagon</a> (CC BY 3.0).
+                <a href="https://themewagon.com">ThemeWagon</a> (CC BY 3.0). Tea photos by soultea.de / André Helbig (<a
+                  href="images/teas/CREDITS.md"
+                  >CC BY-SA 3.0</a
+                >).
               </p>
             </div>
             <div class="col-lg-6 text-center text-lg-end">
@@ -182,5 +180,6 @@
     </footer>
 
     <script src="vendor/furni/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="js/cart.js"></script>
   </body>
 </html>

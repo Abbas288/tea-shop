@@ -113,6 +113,15 @@ export class ShoppingCartWrapper {
   }
 
   /**
+   * The most bags the cart takes of one tea.
+   *
+   * @returns {number} 99.
+   */
+  get maxBagsPerTea() {
+    return this.#maxBagsPerTea
+  }
+
+  /**
    * True when the cart holds no tea.
    *
    * @returns {boolean} Whether the cart is empty.

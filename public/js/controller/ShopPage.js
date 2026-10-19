@@ -58,7 +58,10 @@ export class ShopPage {
 
       cart.add(product, 1)
       this.#cartStorage.save(cart)
-      this.#cartToast.show(`Added ${product.name}. Bags in your cart: ${cart.bagCount}.`)
+
+      const bagsOfTea = cart.listLines().find((line) => line.product.name === product.name).quantity
+
+      this.#cartToast.show(`${product.name} in cart: ${bagsOfTea}`)
     } catch (error) {
       if (!(error instanceof QuantityError || error instanceof CartStorageError)) {
         throw error

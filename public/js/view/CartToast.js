@@ -19,7 +19,7 @@ export class CartToast {
   /**
    * Shows the message, or replaces the one shown.
    *
-   * @param {string} message - Such as "Added Earl Grey. Bags in your cart: 2."
+   * @param {string} message - Such as "Earl Grey in cart: 2".
    */
   show(message) {
     this.#focusBefore = document.activeElement

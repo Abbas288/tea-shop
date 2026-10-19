@@ -59,7 +59,7 @@ describe('ShopPage', () => {
     pickTea('Rooibos')
 
     expect(cartStorage.load([rooibos]).bagCount).toBe(2)
-    expect(cartToast.show).toHaveBeenCalledWith(expect.stringContaining('Bags in your cart: 2'))
+    expect(cartToast.show).toHaveBeenCalledWith(expect.stringContaining('Rooibos in cart: 2'))
   })
 
   it('says so when a tea already has 99 bags', async () => {
