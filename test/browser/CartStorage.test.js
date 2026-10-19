@@ -56,6 +56,19 @@ describe('CartStorage', () => {
     ])
   })
 
+  it('keeps the discount code between visits', () => {
+    const storage = memoryStorage()
+    const cart = new ShoppingCartWrapper()
+
+    cart.add(earlGrey, 2)
+    cart.applyDiscount('SAVE10', 10)
+    new CartStorage(storage).save(cart)
+
+    const loaded = new CartStorage(storage).load(products)
+
+    expect([loaded.discountCode, loaded.total]).toEqual(['SAVE10', 142])
+  })
+
   it('takes the prices from the shop, not from the saved cart', () => {
     const storage = storageHolding('[{"name":"Earl Grey","quantity":2,"price":1}]')
 

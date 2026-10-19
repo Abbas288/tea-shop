@@ -7,7 +7,11 @@ export class CartView {
   #template
   #message
   #subtotal
+  #discountLabel
+  #discount
   #total
+  #discountForm
+  #discountMessage
   #checkoutLink
   /** @type {Map<string, HTMLTableRowElement>} The rows on the page, by tea name. */
   #rows = new Map()
@@ -22,7 +26,11 @@ export class CartView {
     this.#template = page.querySelector('#cart-line-template')
     this.#message = page.querySelector('#cart-message')
     this.#subtotal = page.querySelector('#cart-subtotal')
+    this.#discountLabel = page.querySelector('#cart-discount-label')
+    this.#discount = page.querySelector('#cart-discount')
     this.#total = page.querySelector('#cart-total')
+    this.#discountForm = page.querySelector('#discount-form')
+    this.#discountMessage = page.querySelector('#discount-message')
     this.#checkoutLink = page.querySelector('#checkout-link')
     this.#message.tabIndex = -1
   }
@@ -49,6 +57,8 @@ export class CartView {
     }
 
     this.#subtotal.textContent = `${cart.subtotal} kr`
+    this.#discountLabel.textContent = cart.discountCode === '' ? 'Discount' : `Discount (${cart.discountCode})`
+    this.#discount.textContent = cart.discount === 0 ? '0 kr' : `−${cart.discount} kr`
     this.#total.textContent = `${cart.total} kr`
     this.#message.textContent = cart.isEmpty ? 'Your cart is empty.' : ''
     this.#setCheckoutAllowed(!cart.isEmpty)
@@ -61,6 +71,27 @@ export class CartView {
    */
   showMessage(message) {
     this.#message.textContent = message
+  }
+
+  /**
+   * Shows a message under the discount code field.
+   *
+   * @param {string} message - Such as "Unknown discount code."
+   */
+  showDiscountMessage(message) {
+    this.#discountMessage.textContent = message
+  }
+
+  /**
+   * Calls the handler when the customer sends a discount code. The page does not reload.
+   *
+   * @param {(text: string) => void} handler - Gets what the customer typed.
+   */
+  onApplyDiscount(handler) {
+    this.#discountForm.addEventListener('submit', (event) => {
+      event.preventDefault()
+      handler(this.#discountForm.elements.code.value)
+    })
   }
 
   /**

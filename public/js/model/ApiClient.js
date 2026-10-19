@@ -22,7 +22,25 @@ export class ApiClient {
   }
 
   /**
-   * Any answer but 2xx counts as a failure, and so does an answer that is not JSON.
+   * The discount code the shop has for what the customer typed.
+   *
+   * @param {string} text - Such as "save10".
+   * @returns {Promise<{ code: string, percent: number }>} The code in capitals and its percent.
+   * @throws {ApiError} If the shop has no such code (status 404), or the server cannot answer.
+   */
+  async getDiscountCode(text) {
+    const details = await this.#getJson(`api/discount-codes/${encodeURIComponent(text.trim())}`)
+
+    if (typeof details?.code !== 'string' || !Number.isInteger(details?.percent)) {
+      throw new ApiError('The server did not send a discount code.')
+    }
+
+    return { code: details.code, percent: details.percent }
+  }
+
+  /**
+   * Any answer but 2xx counts as a failure, and so does an answer that is not JSON. A failure keeps the server's
+   * message if it sent one.
    *
    * @param {string} path - Such as "api/products".
    * @returns {Promise<*>} The parsed answer.
@@ -32,7 +50,7 @@ export class ApiClient {
       const response = await fetch(path)
 
       if (!response.ok) {
-        throw new ApiError(`The server answered ${response.status} for ${path}.`)
+        throw new ApiError(await this.#errorMessageOf(response, path), { status: response.status })
       }
 
       return await response.json()
@@ -43,5 +61,28 @@ export class ApiClient {
 
       throw new ApiError(`No usable answer from the server for ${path}.`, { cause: error })
     }
+  }
+
+  /**
+   * The server sends JSON with a message for most errors.
+   *
+   * @param {Response} response - An answer that is not 2xx.
+   * @param {string} path - The address that was asked for.
+   * @returns {Promise<string>} The server's message, or one that names the status.
+   */
+  async #errorMessageOf(response, path) {
+    try {
+      const body = await response.json()
+
+      if (typeof body?.message === 'string') {
+        return body.message
+      }
+    } catch (error) {
+      if (!(error instanceof SyntaxError)) {
+        throw error
+      }
+    }
+
+    return `The server answered ${response.status} for ${path}.`
   }
 }

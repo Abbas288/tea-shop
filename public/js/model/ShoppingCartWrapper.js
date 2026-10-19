@@ -10,6 +10,8 @@ import { QuantityError } from './QuantityError.js'
 export class ShoppingCartWrapper {
   #maxBagsPerTea = 99
   #shoppingCart = new ShoppingCart()
+  #discountCode = ''
+  #discountPercent = 0
   /** @type {Map<string, Product>} The teas in the cart, by name. */
   #products = new Map()
 
@@ -63,6 +65,28 @@ export class ShoppingCartWrapper {
   }
 
   /**
+   * Takes a percent off the total. A new code replaces the one before.
+   *
+   * @param {string} code - Such as "SAVE10".
+   * @param {number} percent - An integer from 1 to 100.
+   * @throws {TypeError} If code is empty or not text.
+   * @throws {RangeError} If percent is not an integer from 1 to 100.
+   */
+  applyDiscount(code, percent) {
+    if (typeof code !== 'string' || code.trim() === '') {
+      throw new TypeError('A discount needs a code.')
+    }
+
+    if (!Number.isInteger(percent) || percent < 1 || percent > 100) {
+      throw new RangeError('A discount must be an integer from 1 to 100 percent.')
+    }
+
+    this.#shoppingCart.applyDiscount(percent)
+    this.#discountCode = code
+    this.#discountPercent = percent
+  }
+
+  /**
    * Whether the cart holds bags of the tea.
    *
    * @param {string} productName - Such as "Earl Grey".
@@ -95,12 +119,39 @@ export class ShoppingCartWrapper {
   }
 
   /**
-   * What the customer pays.
+   * What the customer pays, rounded to whole kronor.
    *
    * @returns {number} Kronor.
    */
   get total() {
-    return this.#shoppingCart.getTotalPrice()
+    return Math.round(this.#shoppingCart.getTotalPrice())
+  }
+
+  /**
+   * What the discount takes off, in whole kronor.
+   *
+   * @returns {number} 0 without a discount.
+   */
+  get discount() {
+    return this.subtotal - this.total
+  }
+
+  /**
+   * Such as "SAVE10".
+   *
+   * @returns {string} The code in use, or an empty string.
+   */
+  get discountCode() {
+    return this.#discountCode
+  }
+
+  /**
+   * The percent the code takes off.
+   *
+   * @returns {number} 0 without a discount.
+   */
+  get discountPercent() {
+    return this.#discountPercent
   }
 
   /**

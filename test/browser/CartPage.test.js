@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { ApiError } from '../../public/js/model/ApiError.js'
 import { CartStorage } from '../../public/js/model/CartStorage.js'
 import { CartStorageError } from '../../public/js/model/CartStorageError.js'
 import { Product } from '../../public/js/model/Product.js'
@@ -6,7 +7,30 @@ import { ShoppingCartWrapper } from '../../public/js/model/ShoppingCartWrapper.j
 import { CartPage } from '../../public/js/controller/CartPage.js'
 
 const rooibos = new Product({ name: 'Rooibos', description: 'Red bush tea.', price: 69, image: 'rooibos.webp' })
-const api = { getProducts: async () => [rooibos] }
+const api = {
+  getProducts: async () => [rooibos],
+  getDiscountCode: async (text) => {
+    if (text.trim().toUpperCase() !== 'SAVE10') {
+      throw new ApiError('Unknown discount code.', { status: 404 })
+    }
+
+    return { code: 'SAVE10', percent: 10 }
+  },
+}
+
+/**
+ * A view that only records what it was asked to do.
+ *
+ * @returns {object} The fake view.
+ */
+const fakeCartView = () => ({
+  show: vi.fn(),
+  showMessage: vi.fn(),
+  showDiscountMessage: vi.fn(),
+  onChangeQuantity: vi.fn(),
+  onRemove: vi.fn(),
+  onApplyDiscount: vi.fn(),
+})
 
 /**
  * A Storage that keeps what is saved in memory, in place of localStorage.
@@ -29,7 +53,7 @@ const memoryStorage = () => {
  */
 const showCartWithTwoBags = async () => {
   const cartStorage = new CartStorage(memoryStorage())
-  const cartView = { show: vi.fn(), showMessage: vi.fn(), onChangeQuantity: vi.fn(), onRemove: vi.fn() }
+  const cartView = fakeCartView()
   const savedCart = new ShoppingCartWrapper()
 
   savedCart.add(rooibos, 2)
@@ -66,7 +90,7 @@ describe('CartPage', () => {
 
   it('shows the saved cart even if the browser does not let the shop save', async () => {
     const cartStorage = new CartStorage(memoryStorage())
-    const cartView = { show: vi.fn(), showMessage: vi.fn(), onChangeQuantity: vi.fn(), onRemove: vi.fn() }
+    const cartView = fakeCartView()
     const savedCart = new ShoppingCartWrapper()
 
     savedCart.add(rooibos, 2)
@@ -91,6 +115,28 @@ describe('CartPage', () => {
 
     expect(cartView.show.mock.calls.length).toBe(shownBefore)
     expect(cartView.showMessage).toHaveBeenCalledWith(new CartStorageError().message)
+  })
+
+  it('applies a discount code the shop has, and keeps it', async () => {
+    const { cartStorage, cartView } = await showCartWithTwoBags()
+    const applyDiscount = cartView.onApplyDiscount.mock.calls[0][0]
+
+    await applyDiscount(' save10 ')
+
+    const cart = cartStorage.load([rooibos])
+
+    expect([cart.discountCode, cart.discount, cart.total]).toEqual(['SAVE10', 14, 124])
+    expect(cartView.showDiscountMessage).toHaveBeenCalledWith(expect.stringContaining('10% off'))
+  })
+
+  it('says so when the shop has no such code', async () => {
+    const { cartStorage, cartView } = await showCartWithTwoBags()
+    const applyDiscount = cartView.onApplyDiscount.mock.calls[0][0]
+
+    await applyDiscount('FREETEA')
+
+    expect(cartStorage.load([rooibos]).discountCode).toBe('')
+    expect(cartView.showDiscountMessage).toHaveBeenCalledWith('Unknown discount code.')
   })
 
   it.each([0, 100, Number.NaN])('keeps the bags and says why when the number is %j', async (quantity) => {

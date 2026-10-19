@@ -37,6 +37,16 @@ describe('ShoppingCartWrapper', () => {
     expect([cart.subtotal, cart.bagCount]).toEqual([227, 3])
   })
 
+  it('takes the discount off the total, rounded to whole kronor', () => {
+    const cart = new ShoppingCartWrapper()
+
+    cart.add(rooibos, 1)
+    cart.add(earlGrey, 2)
+    cart.applyDiscount('SAVE10', 10)
+
+    expect([cart.subtotal, cart.discount, cart.total]).toEqual([227, 23, 204])
+  })
+
   it('changes the bags of a tea', () => {
     const cart = new ShoppingCartWrapper()
 

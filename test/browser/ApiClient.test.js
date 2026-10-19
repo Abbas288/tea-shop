@@ -43,6 +43,15 @@ describe('ApiClient', () => {
     await expect(products).rejects.toThrow('500')
   })
 
+  it('passes on the message and status the server sends with an error', async () => {
+    answerWith(404, { status: 404, message: 'Unknown discount code.' })
+
+    const discountCode = new ApiClient().getDiscountCode('FREETEA')
+
+    await expect(discountCode).rejects.toThrow('Unknown discount code.')
+    await expect(discountCode).rejects.toHaveProperty('status', 404)
+  })
+
   it('throws an ApiError when the server cannot be reached', async () => {
     vi.stubGlobal(
       'fetch',
