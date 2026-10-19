@@ -30,6 +30,21 @@ export class ProductList {
   }
 
   /**
+   * Calls the handler with the tea's name when the customer picks a tea.
+   *
+   * @param {(productName: string) => void} handler - Gets a name such as "Earl Grey".
+   */
+  onAddToCart(handler) {
+    this.#list.addEventListener('click', (event) => {
+      const item = event.target.closest('.product-item')
+
+      if (item !== null) {
+        handler(item.dataset.productName)
+      }
+    })
+  }
+
+  /**
    * Replaces the list with the message.
    *
    * @param {string} message - Such as "The teas could not be loaded."
@@ -50,10 +65,9 @@ export class ProductList {
    */
   #createItem(product) {
     const item = this.#template.content.firstElementChild.cloneNode(true)
-    const image = item.querySelector('.product-thumbnail')
 
-    image.src = product.image
-    image.alt = product.name
+    item.querySelector('.product-item').dataset.productName = product.name
+    item.querySelector('.product-thumbnail').src = product.image
     item.querySelector('.product-title').textContent = product.name
     item.querySelector('.product-description').textContent = product.description
     item.querySelector('.product-price').textContent = `${product.price} kr`

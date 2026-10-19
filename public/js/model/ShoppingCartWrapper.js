@@ -1,13 +1,14 @@
-import { ShoppingCart } from '1dv610-laboration-2'
+import { ShoppingCart } from '../../modules/shopping-cart/index.js'
 import { CartLine } from './CartLine.js'
 import { Product } from './Product.js'
 import { QuantityError } from './QuantityError.js'
 
 /**
- * The customer's cart. Wraps the ShoppingCart package: throws where the package answers false, and takes
- * only a positive integer as quantity.
+ * The customer's cart. It wraps the ShoppingCart package, throws where the package answers false and allows
+ * 1 to 99 bags of each tea.
  */
 export class ShoppingCartWrapper {
+  #maxBagsPerTea = 99
   #shoppingCart = new ShoppingCart()
   /** @type {Map<string, Product>} The teas in the cart, by name. */
   #products = new Map()
@@ -18,7 +19,7 @@ export class ShoppingCartWrapper {
    * @param {Product} product - The tea.
    * @param {number} quantity - Bags to add, 1 or more.
    * @throws {TypeError} If product is not a Product.
-   * @throws {QuantityError} If quantity is not a positive integer.
+   * @throws {QuantityError} If quantity is not an integer, or the tea would get fewer than 1 or more than 99 bags.
    */
   add(product, quantity) {
     if (!(product instanceof Product)) {
@@ -26,6 +27,7 @@ export class ShoppingCartWrapper {
     }
 
     this.#requireQuantity(quantity)
+    this.#requireQuantity(this.#bagsOf(product.name) + quantity)
 
     if (!this.has(product.name)) {
       this.#products.set(product.name, product)
@@ -38,8 +40,8 @@ export class ShoppingCartWrapper {
    * Sets the bags of a tea in the cart.
    *
    * @param {string} productName - Such as "Earl Grey".
-   * @param {number} quantity - Bags, 1 or more.
-   * @throws {QuantityError} If quantity is not a positive integer.
+   * @param {number} quantity - Bags, 1 to 99.
+   * @throws {QuantityError} If quantity is not an integer from 1 to 99.
    * @throws {Error} If the tea is not in the cart.
    */
   changeQuantity(productName, quantity) {
@@ -120,14 +122,26 @@ export class ShoppingCartWrapper {
   }
 
   /**
-   * Safe integers only: larger numbers lose their precision.
+   * An integer from 1 to 99.
    *
    * @param {*} quantity - The value to check.
    */
   #requireQuantity(quantity) {
-    if (!Number.isSafeInteger(quantity) || quantity < 1) {
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > this.#maxBagsPerTea) {
       throw new QuantityError()
     }
+  }
+
+  /**
+   * Zero for a tea that is not in the cart.
+   *
+   * @param {string} productName - The tea to count.
+   * @returns {number} Its bags.
+   */
+  #bagsOf(productName) {
+    const item = this.#shoppingCart.getItems().find((candidate) => candidate.getName() === productName)
+
+    return item?.getQuantity() ?? 0
   }
 
   /**

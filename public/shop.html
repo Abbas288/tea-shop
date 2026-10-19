@@ -61,17 +61,26 @@
 
     <template id="product-template">
       <div class="col-12 col-md-6 col-lg-3 mb-5">
-        <a class="product-item" href="#">
+        <button class="product-item" type="button">
           <img class="img-fluid product-thumbnail" src="" alt="" />
-          <h3 class="product-title"></h3>
-          <p class="product-description text-muted small"></p>
+          <span class="product-title"></span>
+          <span class="product-description text-muted small"></span>
           <strong class="product-price"></strong>
           <span class="icon-cross"
             ><img src="vendor/furni/images/cross.svg" class="img-fluid" alt="Add to cart"
           /></span>
-        </a>
+        </button>
       </div>
     </template>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" role="status" aria-live="polite">
+      <div class="toast" id="cart-toast">
+        <div class="d-flex">
+          <div class="toast-body"></div>
+          <button class="btn-close me-2 m-auto" type="button" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
 
     <footer class="footer-section">
       <div class="container relative">

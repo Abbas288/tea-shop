@@ -1,6 +1,6 @@
 /*
- * Our own rules for the shop pages. This file loads after Furni's style.css and overrides it where Furni
- * falls short. Furni's own files in vendor/furni stay unchanged.
+ * Our own rules for the shop pages. They load after Furni's style.css and override it, and the files in
+ * vendor/furni stay unchanged.
  */
 
 /*
@@ -61,4 +61,58 @@
     opacity: 1;
     visibility: visible;
   }
+}
+
+/*
+ * Overrides the browser's button style: each product is a button that adds the tea to the cart, and should look
+ * like Furni's product link.
+ */
+.product-section button.product-item {
+  width: 100%;
+  padding-top: 0;
+  padding-inline: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+/*
+ * Adds what Furni styles on h3 and p: a button may only hold text-level elements, so the title and the
+ * description are spans.
+ */
+.product-section .product-item .product-title {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 16px;
+  color: #2f2f2f;
+}
+
+.product-section .product-item .product-description {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+/*
+ * Overrides Furni: the card only reacts to the mouse. Keyboard focus gets the same look as hover, and an outline.
+ */
+.product-section .product-item:focus-visible {
+  outline: 2px solid #3b5d50;
+  outline-offset: 4px;
+  border-radius: 10px;
+}
+
+.product-section .product-item:focus-visible .product-thumbnail {
+  top: -25px;
+}
+
+.product-section .product-item:focus-visible .icon-cross {
+  bottom: 0;
+  opacity: 1;
+  visibility: visible;
+}
+
+.product-section .product-item:focus-visible::before {
+  height: 70%;
 }

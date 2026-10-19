@@ -56,20 +56,29 @@ describe('ShoppingCartWrapper', () => {
     expect(linesOf(cart)).toEqual([['Rooibos', 1, 69]])
   })
 
-  it.each([0, 1.5, '2'])('refuses to add the quantity %j', (quantity) => {
+  it.each([0, 1.5, '2', 100])('refuses to add the quantity %j', (quantity) => {
     const cart = new ShoppingCartWrapper()
 
     expect(() => cart.add(rooibos, quantity)).toThrow(QuantityError)
     expect(cart.isEmpty).toBe(true)
   })
 
-  it.each([0, '2'])('refuses to change the bags to %j', (quantity) => {
+  it.each([0, '2', 100])('refuses to change the bags to %j', (quantity) => {
     const cart = new ShoppingCartWrapper()
 
     cart.add(earlGrey, 1)
 
     expect(() => cart.changeQuantity('Earl Grey', quantity)).toThrow(QuantityError)
     expect(linesOf(cart)).toEqual([['Earl Grey', 1, 79]])
+  })
+
+  it('refuses more than 99 bags of a tea in total', () => {
+    const cart = new ShoppingCartWrapper()
+
+    cart.add(earlGrey, 99)
+
+    expect(() => cart.add(earlGrey, 1)).toThrow(QuantityError)
+    expect(linesOf(cart)).toEqual([['Earl Grey', 99, 7821]])
   })
 
   it('throws instead of answering false for a tea that is not in the cart', () => {

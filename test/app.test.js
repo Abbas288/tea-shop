@@ -18,6 +18,13 @@ describe('The app', () => {
     expect(response.type).toBe('text/html')
   })
 
+  it('serves the ShoppingCart package to the browser', async () => {
+    const response = await request(app).get('/modules/shopping-cart/index.js')
+
+    expect(response.status).toBe(200)
+    expect(response.type).toBe('text/javascript')
+  })
+
   it('sends the products of the catalog as JSON, in their order', async () => {
     const response = await request(app).get('/api/products')
 

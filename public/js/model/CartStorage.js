@@ -1,10 +1,10 @@
-import { ShoppingCartWrapper } from './ShoppingCartWrapper.js'
+import { CartStorageError } from './CartStorageError.js'
 import { QuantityError } from './QuantityError.js'
+import { ShoppingCartWrapper } from './ShoppingCartWrapper.js'
 
 /**
- * Keeps the cart in the browser between pages and visits.
- * Only the name and the bags of each tea are saved;
- * the prices come from the shop when the cart is loaded.
+ * Keeps the cart in the browser between pages and visits. Only the name and the bags of each tea are saved,
+ * and the prices come from the shop when the cart is loaded.
  */
 export class CartStorage {
   #storage
@@ -23,11 +23,16 @@ export class CartStorage {
    * Replaces the cart that was saved before.
    *
    * @param {ShoppingCartWrapper} cart - The cart to save.
+   * @throws {CartStorageError} If the browser does not let the shop save.
    */
   save(cart) {
     const savedLines = cart.listLines().map((line) => ({ name: line.product.name, quantity: line.quantity }))
 
-    this.#storage.setItem(this.#key, JSON.stringify(savedLines))
+    try {
+      this.#storage.setItem(this.#key, JSON.stringify(savedLines))
+    } catch (error) {
+      throw new CartStorageError({ cause: error })
+    }
   }
 
   /**
@@ -36,6 +41,7 @@ export class CartStorage {
    *
    * @param {import('./Product.js').Product[]} products - The teas the shop sells.
    * @returns {ShoppingCartWrapper} A new cart.
+   * @throws {CartStorageError} If the browser does not let the shop read.
    */
   load(products) {
     const cart = new ShoppingCartWrapper()
@@ -57,8 +63,10 @@ export class CartStorage {
    * @returns {*[]} The saved lines, not checked.
    */
   #readSavedLines() {
+    const savedText = this.#readSavedText()
+
     try {
-      const savedLines = JSON.parse(this.#storage.getItem(this.#key))
+      const savedLines = JSON.parse(savedText)
 
       if (Array.isArray(savedLines)) {
         return savedLines
@@ -70,6 +78,19 @@ export class CartStorage {
     }
 
     return []
+  }
+
+  /**
+   * The browser may refuse, for example when its site data is blocked.
+   *
+   * @returns {string | null} The saved text, or null if nothing is saved.
+   */
+  #readSavedText() {
+    try {
+      return this.#storage.getItem(this.#key)
+    } catch (error) {
+      throw new CartStorageError({ cause: error })
+    }
   }
 
   /**
