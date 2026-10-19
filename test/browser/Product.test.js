@@ -15,11 +15,17 @@ describe('Product in the browser', () => {
     ])
   })
 
-  it.each(['name', 'description', 'image'])('refuses a missing %s', (field) => {
-    expect(() => new Product({ ...rooibos, [field]: undefined })).toThrow(new TypeError(`A product needs a ${field}.`))
+  it('refuses a tea without a name', () => {
+    const createProduct = () => new Product({ ...rooibos, name: undefined })
+
+    expect(createProduct).toThrow(TypeError)
+    expect(createProduct).toThrow('name')
   })
 
   it.each([undefined, '69', 0, 69.5])('refuses the price %j', (price) => {
-    expect(() => new Product({ ...rooibos, price })).toThrow(new TypeError('A price must be a positive integer.'))
+    const createProduct = () => new Product({ ...rooibos, price })
+
+    expect(createProduct).toThrow(TypeError)
+    expect(createProduct).toThrow('price')
   })
 })

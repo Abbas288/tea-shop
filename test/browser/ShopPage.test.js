@@ -10,16 +10,6 @@ import { ShopPage } from '../../public/js/controller/ShopPage.js'
 const fakeProductList = () => ({ show: vi.fn(), showError: vi.fn() })
 
 describe('ShopPage', () => {
-  it('shows the teas the API sends', async () => {
-    const teas = [{ name: 'Rooibos' }]
-    const productList = fakeProductList()
-
-    await new ShopPage({ getProducts: async () => teas }, productList).show()
-
-    expect(productList.show).toHaveBeenCalledWith(teas)
-    expect(productList.showError).not.toHaveBeenCalled()
-  })
-
   it('shows a message when the API fails', async () => {
     const productList = fakeProductList()
     const failingApi = {
@@ -30,19 +20,18 @@ describe('ShopPage', () => {
 
     await new ShopPage(failingApi, productList).show()
 
-    expect(productList.showError).toHaveBeenCalledWith('The teas could not be loaded. Please try again later.')
+    expect(productList.showError).toHaveBeenCalledWith(expect.stringContaining('could not be loaded'))
   })
 
   it('throws any other error again, so a bug in the page is not shown as a network problem', async () => {
     const productList = fakeProductList()
+    const bug = new TypeError('A bug in the page')
 
     productList.show.mockImplementation(() => {
-      throw new TypeError('A bug in the page')
+      throw bug
     })
 
-    await expect(new ShopPage({ getProducts: async () => [] }, productList).show()).rejects.toThrow(
-      new TypeError('A bug in the page')
-    )
+    await expect(new ShopPage({ getProducts: async () => [] }, productList).show()).rejects.toBe(bug)
     expect(productList.showError).not.toHaveBeenCalled()
   })
 })

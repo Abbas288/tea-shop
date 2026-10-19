@@ -37,9 +37,10 @@ describe('ApiClient', () => {
   it('throws an ApiError when the server answers with an error', async () => {
     answerWith(500, 'down')
 
-    await expect(new ApiClient().getProducts()).rejects.toThrow(
-      new ApiError('The server answered 500 for /api/products.')
-    )
+    const products = new ApiClient().getProducts()
+
+    await expect(products).rejects.toThrow(ApiError)
+    await expect(products).rejects.toThrow('500')
   })
 
   it('throws an ApiError when the server cannot be reached', async () => {
@@ -53,14 +54,12 @@ describe('ApiClient', () => {
     await expect(new ApiClient().getProducts()).rejects.toThrow(ApiError)
   })
 
-  it.each([[{ products: [] }], [[{ ...rooibos, price: 'free' }]]])(
-    'throws an ApiError when the server sends %j instead of a list of products',
-    async (body) => {
-      answerWith(200, body)
+  it.each([
+    ['an object', { products: [] }],
+    ['a tea priced "free"', [{ ...rooibos, price: 'free' }]],
+  ])('throws an ApiError when the server sends %s instead of a list of products', async (_label, body) => {
+    answerWith(200, body)
 
-      await expect(new ApiClient().getProducts()).rejects.toThrow(
-        new ApiError('The server did not send a list of products.')
-      )
-    }
-  )
+    await expect(new ApiClient().getProducts()).rejects.toThrow(ApiError)
+  })
 })

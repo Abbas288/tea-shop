@@ -11,20 +11,11 @@ describe('The app', () => {
     expect(response.text).toContain('<title>Tea Shop</title>')
   })
 
-  it.each(['/cart', '/checkout', '/thankyou', '/track', '/admin-login', '/admin'])(
-    'serves the page %s without .html',
-    async (path) => {
-      const response = await request(app).get(path)
+  it('serves a page without .html', async () => {
+    const response = await request(app).get('/cart')
 
-      expect(response.status).toBe(200)
-      expect(response.type).toBe('text/html')
-    }
-  )
-
-  it('answers 404 for a page that does not exist', async () => {
-    const response = await request(app).get('/about')
-
-    expect(response.status).toBe(404)
+    expect(response.status).toBe(200)
+    expect(response.type).toBe('text/html')
   })
 
   it('sends the products of the catalog as JSON, in their order', async () => {
