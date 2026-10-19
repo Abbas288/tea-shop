@@ -16,7 +16,8 @@ export class Product {
    * @param {string} details.description - One or two short sentences.
    * @param {number} details.price - A positive integer.
    * @param {string} details.image - Path to the picture.
-   * @throws {TypeError} If a value is missing or of the wrong type, or the price is not a positive integer.
+   * @throws {TypeError} If a value is missing or of the wrong type.
+   * @throws {RangeError} If the price is not a positive integer.
    */
   constructor({ name, description, price, image } = {}) {
     this.#name = this.#requireText(name, 'name')
@@ -83,8 +84,12 @@ export class Product {
    * @returns {number} The value.
    */
   #requirePrice(value) {
+    if (typeof value !== 'number') {
+      throw new TypeError('A product needs a price.')
+    }
+
     if (!Number.isInteger(value) || value <= 0) {
-      throw new TypeError('A price must be a positive integer.')
+      throw new RangeError('A price must be a positive integer.')
     }
 
     return value

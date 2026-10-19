@@ -66,19 +66,34 @@ describe('ShoppingCartWrapper', () => {
     expect(linesOf(cart)).toEqual([['Rooibos', 1, 69]])
   })
 
-  it.each([0, 1.5, '2', 100])('refuses to add the quantity %j', (quantity) => {
+  it.each([0, 1.5, 100])('refuses to add the quantity %j', (quantity) => {
     const cart = new ShoppingCartWrapper()
 
     expect(() => cart.add(rooibos, quantity)).toThrow(QuantityError)
     expect(cart.isEmpty).toBe(true)
   })
 
-  it.each([0, '2', 100])('refuses to change the bags to %j', (quantity) => {
+  it.each([0, 100, NaN])('refuses to change the bags to %j', (quantity) => {
     const cart = new ShoppingCartWrapper()
 
     cart.add(earlGrey, 1)
 
     expect(() => cart.changeQuantity('Earl Grey', quantity)).toThrow(QuantityError)
+    expect(linesOf(cart)).toEqual([['Earl Grey', 1, 79]])
+  })
+
+  it('refuses bags given as text', () => {
+    const cart = new ShoppingCartWrapper()
+
+    cart.add(earlGrey, 1)
+
+    const addTextBags = () => cart.add(rooibos, '2')
+    const changeToTextBags = () => cart.changeQuantity('Earl Grey', '2')
+
+    expect(addTextBags).toThrow(TypeError)
+    expect(addTextBags).toThrow('bags')
+    expect(changeToTextBags).toThrow(TypeError)
+    expect(changeToTextBags).toThrow('bags')
     expect(linesOf(cart)).toEqual([['Earl Grey', 1, 79]])
   })
 
@@ -91,10 +106,30 @@ describe('ShoppingCartWrapper', () => {
     expect(linesOf(cart)).toEqual([['Earl Grey', 99, 7821]])
   })
 
+  it.each([
+    ['10', TypeError],
+    [0, RangeError],
+    [101, RangeError],
+    [12.5, RangeError],
+  ])('refuses a discount of %j percent', (percent, ErrorClass) => {
+    const cart = new ShoppingCartWrapper()
+
+    cart.add(earlGrey, 1)
+
+    expect(() => cart.applyDiscount('SAVE10', percent)).toThrow(ErrorClass)
+    expect(() => cart.applyDiscount('SAVE10', percent)).toThrow('percent')
+    expect(cart.total).toBe(79)
+  })
+
   it('throws instead of answering false for a tea that is not in the cart', () => {
     const cart = new ShoppingCartWrapper()
 
-    expect(() => cart.changeQuantity('Rooibos', 2)).toThrow('not in the cart')
-    expect(() => cart.remove('Rooibos')).toThrow('not in the cart')
+    const changeMissingTea = () => cart.changeQuantity('Rooibos', 2)
+    const removeMissingTea = () => cart.remove('Rooibos')
+
+    expect(changeMissingTea).toThrow(Error)
+    expect(changeMissingTea).toThrow('not in the cart')
+    expect(removeMissingTea).toThrow(Error)
+    expect(removeMissingTea).toThrow('not in the cart')
   })
 })

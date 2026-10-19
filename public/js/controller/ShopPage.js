@@ -59,7 +59,7 @@ export class ShopPage {
       cart.add(product, 1)
       this.#cartStorage.save(cart)
 
-      const bagsOfTea = cart.listLines().find((line) => line.product.name === product.name).quantity
+      const bagsOfTea = cart.countBagsOf(product.name)
 
       this.#cartToast.show(`${product.name} in cart: ${bagsOfTea}`)
     } catch (error) {

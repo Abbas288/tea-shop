@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { BrowserStorage } from '../../public/js/model/BrowserStorage.js'
 import { CartStorage } from '../../public/js/model/CartStorage.js'
+import { CartStorageError } from '../../public/js/model/CartStorageError.js'
 import { Product } from '../../public/js/model/Product.js'
 import { ShoppingCartWrapper } from '../../public/js/model/ShoppingCartWrapper.js'
 
@@ -81,10 +83,44 @@ describe('CartStorage', () => {
       null,
       { name: 'Rooibos' },
       { name: 'Rooibos', quantity: '2' },
+      { name: 'Rooibos', quantity: 100 },
       { name: 'Earl Grey', quantity: 1 },
     ])
 
     expect(bagsPerTea(new CartStorage(storageHolding(savedText)).load(products))).toEqual([['Earl Grey', 1]])
+  })
+
+  it('keeps valid lines without a saved discount it cannot use', () => {
+    const savedText = JSON.stringify({
+      lines: [{ name: 'Earl Grey', quantity: 2 }],
+      discount: { code: 'SAVE10', percent: '10' },
+    })
+
+    const cart = new CartStorage(storageHolding(savedText)).load(products)
+
+    expect(bagsPerTea(cart)).toEqual([['Earl Grey', 2]])
+    expect([cart.discountCode, cart.discount, cart.total]).toEqual(['', 0, 158])
+  })
+
+  it('turns a browser that blocks localStorage into a CartStorageError', () => {
+    const originalDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'localStorage')
+
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      get: () => {
+        throw new DOMException('Access is denied.', 'SecurityError')
+      },
+    })
+
+    try {
+      expect(() => new CartStorage(new BrowserStorage()).load(products)).toThrow(CartStorageError)
+    } finally {
+      if (originalDescriptor === undefined) {
+        delete globalThis.localStorage
+      } else {
+        Object.defineProperty(globalThis, 'localStorage', originalDescriptor)
+      }
+    }
   })
 
   it.each(['not JSON', '42'])('loads an empty cart when the saved text is %j', (savedText) => {

@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { ApiError } from '../../public/js/model/ApiError.js'
 import { CartStorage } from '../../public/js/model/CartStorage.js'
-import { CartStorageError } from '../../public/js/model/CartStorageError.js'
 import { Product } from '../../public/js/model/Product.js'
 import { ShoppingCartWrapper } from '../../public/js/model/ShoppingCartWrapper.js'
 import { ShopPage } from '../../public/js/controller/ShopPage.js'
@@ -83,23 +82,24 @@ describe('ShopPage', () => {
   it('says so when the browser does not let the shop save the cart', async () => {
     const productList = fakeProductList()
     const cartToast = { show: vi.fn() }
-    const blockedStorage = {
-      getItem: () => {
-        throw new DOMException('The operation is insecure.', 'SecurityError')
-      },
-    }
+    const storage = memoryStorage()
+    const cartStorage = new CartStorage(storage)
+    const savedCart = new ShoppingCartWrapper()
 
-    const shopPage = new ShopPage(
-      { getProducts: async () => [rooibos] },
-      productList,
-      new CartStorage(blockedStorage),
-      cartToast
-    )
+    savedCart.add(rooibos, 1)
+    cartStorage.save(savedCart)
+    vi.spyOn(storage, 'setItem').mockImplementation(() => {
+      throw new DOMException('The storage is full.', 'QuotaExceededError')
+    })
+
+    const shopPage = new ShopPage({ getProducts: async () => [rooibos] }, productList, cartStorage, cartToast)
     const pickTea = await showAndGetPicker(shopPage, productList)
 
     pickTea('Rooibos')
 
-    expect(cartToast.show).toHaveBeenCalledWith(expect.stringContaining(new CartStorageError().message))
+    expect(cartStorage.load([rooibos]).bagCount).toBe(1)
+    expect(cartToast.show).toHaveBeenCalledWith(expect.stringContaining('does not let the shop save'))
+    expect(cartToast.show).not.toHaveBeenCalledWith(expect.stringContaining('in cart:'))
   })
 
   it('shows a message when the API fails', async () => {

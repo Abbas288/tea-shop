@@ -17,21 +17,21 @@ export class CartView {
   #rows = new Map()
 
   /**
-   * Finds its parts in the page by their ids.
+   * Finds its parts by their ids inside the element it shows.
    *
-   * @param {Document} page - The cart page.
+   * @param {HTMLElement} root - The page's main element.
    */
-  constructor(page) {
-    this.#lines = page.querySelector('#cart-lines')
-    this.#template = page.querySelector('#cart-line-template')
-    this.#message = page.querySelector('#cart-message')
-    this.#subtotal = page.querySelector('#cart-subtotal')
-    this.#discountLabel = page.querySelector('#cart-discount-label')
-    this.#discount = page.querySelector('#cart-discount')
-    this.#total = page.querySelector('#cart-total')
-    this.#discountForm = page.querySelector('#discount-form')
-    this.#discountMessage = page.querySelector('#discount-message')
-    this.#checkoutLink = page.querySelector('#checkout-link')
+  constructor(root) {
+    this.#lines = root.querySelector('#cart-lines')
+    this.#template = root.querySelector('#cart-line-template')
+    this.#message = root.querySelector('#cart-message')
+    this.#subtotal = root.querySelector('#cart-subtotal')
+    this.#discountLabel = root.querySelector('#cart-discount-label')
+    this.#discount = root.querySelector('#cart-discount')
+    this.#total = root.querySelector('#cart-total')
+    this.#discountForm = root.querySelector('#discount-form')
+    this.#discountMessage = root.querySelector('#discount-message')
+    this.#checkoutLink = root.querySelector('#checkout-link')
     this.#message.tabIndex = -1
   }
 
@@ -53,7 +53,7 @@ export class CartView {
     for (const line of lines) {
       const row = this.#rows.get(line.product.name) ?? this.#addRow(line.product)
 
-      this.#fillRow(row, line, cart.maxBagsPerTea)
+      this.#fillRow(row, line, cart)
     }
 
     this.#subtotal.textContent = `${cart.subtotal} kr`
@@ -95,11 +95,11 @@ export class CartView {
   }
 
   /**
-   * Calls the handler when the customer uses the minus or plus button, or types a number of bags.
+   * Calls the handler when the customer uses the minus or plus button.
    *
-   * @param {(productName: string, quantity: number) => void} handler - Gets the tea and the new number of bags.
+   * @param {(productName: string, step: number) => void} handler - Gets the tea and the change in bags.
    */
-  onChangeQuantity(handler) {
+  onAdjustQuantity(handler) {
     this.#lines.addEventListener('click', (event) => {
       const button = event.target.closest('.decrease, .increase')
 
@@ -107,9 +107,17 @@ export class CartView {
         const row = button.closest('tr')
         const step = button.classList.contains('increase') ? 1 : -1
 
-        handler(row.dataset.productName, this.#readQuantity(row.querySelector('.quantity-amount')) + step)
+        handler(row.dataset.productName, step)
       }
     })
+  }
+
+  /**
+   * Calls the handler when the customer types a number of bags.
+   *
+   * @param {(productName: string, quantity: number) => void} handler - Gets the tea and the new number of bags.
+   */
+  onChangeQuantity(handler) {
     this.#lines.addEventListener('change', (event) => {
       if (event.target.matches('.quantity-amount')) {
         handler(event.target.closest('tr').dataset.productName, this.#readQuantity(event.target))
@@ -160,13 +168,15 @@ export class CartView {
    *
    * @param {HTMLTableRowElement} row - The row to fill.
    * @param {import('../model/CartLine.js').CartLine} line - The tea's bags and total.
-   * @param {number} maxBags - The most bags of one tea.
+   * @param {import('../model/ShoppingCartWrapper.js').ShoppingCartWrapper} cart - Says which buttons are allowed.
    */
-  #fillRow(row, line, maxBags) {
+  #fillRow(row, line, cart) {
+    const productName = line.product.name
+
     row.querySelector('.quantity-amount').value = line.quantity
     row.querySelector('.line-total').textContent = `${line.total} kr`
-    this.#setButtonAllowed(row.querySelector('.decrease'), line.quantity > 1)
-    this.#setButtonAllowed(row.querySelector('.increase'), line.quantity < maxBags)
+    this.#setButtonAllowed(row.querySelector('.decrease'), cart.canRemoveBagOf(productName))
+    this.#setButtonAllowed(row.querySelector('.increase'), cart.canAddBagOf(productName))
   }
 
   /**

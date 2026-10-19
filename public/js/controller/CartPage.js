@@ -3,7 +3,8 @@ import { CartStorageError } from '../model/CartStorageError.js'
 import { QuantityError } from '../model/QuantityError.js'
 
 /**
- * What the customer can do on the cart page.
+ * What the customer can do on the cart page. Each change starts from the saved cart, which another tab may have
+ * changed.
  */
 export class CartPage {
   #api
@@ -41,10 +42,11 @@ export class CartPage {
       return
     }
 
+    this.#cartView.onAdjustQuantity((productName, step) => this.#adjustQuantity(productName, step))
     this.#cartView.onChangeQuantity((productName, quantity) => this.#changeQuantity(productName, quantity))
     this.#cartView.onRemove((productName) => this.#remove(productName))
     this.#cartView.onApplyDiscount((text) => this.#applyDiscount(text))
-    this.#update()
+    this.#showSavedCart()
   }
 
   /**
@@ -77,10 +79,45 @@ export class CartPage {
       return
     }
 
-    const applied = this.#update((cart) => cart.applyDiscount(discountCode.code, discountCode.percent))
+    this.#applyDiscountToSavedCart(discountCode)
+  }
 
-    if (applied) {
+  /**
+   * Tells the customer that the code is used only after the cart is saved.
+   *
+   * @param {{ code: string, percent: number }} discountCode - A code the shop has.
+   */
+  #applyDiscountToSavedCart(discountCode) {
+    try {
+      const cart = this.#cartStorage.load(this.#products)
+
+      cart.applyDiscount(discountCode.code, discountCode.percent)
+      this.#saveAndShow(cart)
       this.#cartView.showDiscountMessage(`${discountCode.code} takes ${discountCode.percent}% off.`)
+    } catch (error) {
+      this.#showWhyCartDidNotChange(error)
+    }
+  }
+
+  /**
+   * Adjusts the saved quantity without overwriting another tab's change.
+   *
+   * @param {string} productName - The tea.
+   * @param {number} step - Bags to add or take away.
+   */
+  #adjustQuantity(productName, step) {
+    try {
+      const cart = this.#cartStorage.load(this.#products)
+
+      if (cart.has(productName)) {
+        const quantity = cart.countBagsOf(productName) + step
+
+        cart.changeQuantity(productName, quantity)
+      }
+
+      this.#saveAndShow(cart)
+    } catch (error) {
+      this.#showWhyCartDidNotChange(error)
     }
   }
 
@@ -91,11 +128,17 @@ export class CartPage {
    * @param {number} quantity - The new number of bags.
    */
   #changeQuantity(productName, quantity) {
-    this.#update((cart) => {
+    try {
+      const cart = this.#cartStorage.load(this.#products)
+
       if (cart.has(productName)) {
         cart.changeQuantity(productName, quantity)
       }
-    })
+
+      this.#saveAndShow(cart)
+    } catch (error) {
+      this.#showWhyCartDidNotChange(error)
+    }
   }
 
   /**
@@ -104,46 +147,60 @@ export class CartPage {
    * @param {string} productName - The tea.
    */
   #remove(productName) {
-    this.#update((cart) => {
+    try {
+      const cart = this.#cartStorage.load(this.#products)
+
       if (cart.has(productName)) {
         cart.remove(productName)
       }
-    })
+
+      this.#saveAndShow(cart)
+    } catch (error) {
+      this.#showWhyCartDidNotChange(error)
+    }
   }
 
   /**
-   * Reads the saved cart first, because another tab may have changed it. Then changes, saves and shows it. Without
-   * a change it only shows the cart, and a change that could not be saved is not shown.
+   * A cart that could not be saved is not shown.
    *
-   * @param {(cart: import('../model/ShoppingCartWrapper.js').ShoppingCartWrapper) => void} [change] - What to do.
-   * @returns {boolean} Whether the cart was saved and shown.
+   * @param {import('../model/ShoppingCartWrapper.js').ShoppingCartWrapper} cart - The changed cart.
    */
-  #update(change) {
-    let cart
+  #saveAndShow(cart) {
+    this.#cartStorage.save(cart)
+    this.#cartView.show(cart)
+  }
 
+  /**
+   * A browser that does not let the shop read gets a message instead.
+   */
+  #showSavedCart() {
     try {
-      cart = this.#cartStorage.load(this.#products)
-
-      if (change !== undefined) {
-        change(cart)
-        this.#cartStorage.save(cart)
-      }
+      const cart = this.#cartStorage.load(this.#products)
 
       this.#cartView.show(cart)
-
-      return true
     } catch (error) {
-      if (!(error instanceof QuantityError || error instanceof CartStorageError)) {
+      if (!(error instanceof CartStorageError)) {
         throw error
       }
 
-      if (error instanceof QuantityError) {
-        this.#cartView.show(cart)
-      }
-
       this.#cartView.showMessage(error.message)
-
-      return false
     }
+  }
+
+  /**
+   * A refused number of bags shows the saved cart again.
+   *
+   * @param {Error} error - Why the cart did not change.
+   */
+  #showWhyCartDidNotChange(error) {
+    if (!(error instanceof QuantityError || error instanceof CartStorageError)) {
+      throw error
+    }
+
+    if (error instanceof QuantityError) {
+      this.#showSavedCart()
+    }
+
+    this.#cartView.showMessage(error.message)
   }
 }
