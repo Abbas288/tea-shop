@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Product } from '../server/model/Product.js'
+import { Product } from '../src/models/Product.js'
 
 const earlGrey = {
   name: 'Earl Grey',

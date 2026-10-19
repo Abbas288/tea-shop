@@ -9,8 +9,9 @@
     "node": ">=22.12"
   },
   "scripts": {
-    "start": "node server/server.js",
-    "test": "vitest run --passWithNoTests",
+    "start": "node src/server.js",
+    "dev": "node --watch --env-file-if-exists=.env src/server.js",
+    "test": "vitest run",
     "lint": "eslint .",
     "lint:fix": "prettier --write . && eslint . --fix",
     "format": "prettier --write .",
@@ -18,7 +19,10 @@
   },
   "dependencies": {
     "1dv610-laboration-2": "github:rosa24-bth/1DV610-laboration-2#laboration-2",
-    "express": "^5.3.0"
+    "express": "^5.3.0",
+    "helmet": "^8.3.0",
+    "http-errors": "^2.0.1",
+    "morgan": "^1.12.1"
   },
   "devDependencies": {
     "@lnu/eslint-config": "^2.0.17",

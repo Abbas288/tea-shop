@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Product } from '../server/model/Product.js'
-import { ProductCatalog } from '../server/model/ProductCatalog.js'
+import { Product } from '../src/models/Product.js'
+import { ProductCatalog } from '../src/models/ProductCatalog.js'
 
 /**
  * A product with the name, and the same values otherwise.
