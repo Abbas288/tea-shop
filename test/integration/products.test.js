@@ -1,32 +1,47 @@
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
-import { ApiClient } from '../../public/js/model/ApiClient.js'
+import mongoose from 'mongoose'
+import { MongoMemoryServer } from 'mongodb-memory-server'
+import request from 'supertest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { app } from '../../src/app.js'
+import { connectToDatabase } from '../../src/config/mongoose.js'
+import { seedDatabase } from '../../src/config/seedDatabase.js'
 import productDetails from '../../src/data/products.json' with { type: 'json' }
+import { ProductModel } from '../../src/models/ProductModel.js'
 
-describe('The shop page and the server', () => {
-  let server
+const productsByName = productDetails.toSorted((first, second) => first.name.localeCompare(second.name))
+
+describe('The teas from products.json through MongoDB and the server', () => {
+  let mongo
 
   beforeAll(async () => {
-    server = await new Promise((resolve, reject) => {
-      const runningServer = app.listen(0, (error) => (error ? reject(error) : resolve(runningServer)))
-    })
+    mongo = await MongoMemoryServer.create()
+    await connectToDatabase(mongo.getUri())
+    await seedDatabase()
+  }, 120_000)
 
-    const serverUrl = `http://localhost:${server.address().port}`
-    const realFetch = globalThis.fetch
-
-    vi.stubGlobal('fetch', (path) => realFetch(new URL(path, serverUrl)))
+  afterAll(async () => {
+    await mongoose.disconnect()
+    await mongo.stop()
   })
 
-  afterAll(() => {
-    vi.unstubAllGlobals()
-    server.close()
+  it('are sent as JSON, sorted by name', async () => {
+    const response = await request(app).get('/api/products')
+
+    expect(response.status).toBe(200)
+    expect(response.type).toBe('application/json')
+    expect(response.body).toMatchObject(productsByName)
+    expect(response.body[0]).not.toHaveProperty('_id')
+    expect(response.body[0]).not.toHaveProperty('__v')
   })
 
-  it('agree on the teas in products.json and their prices', async () => {
-    const teas = await new ApiClient().getProducts()
+  it('are restored from products.json when seedDatabase runs again', async () => {
+    await ProductModel.updateOne({ name: 'Rooibos' }, { price: 1 })
+    await ProductModel.deleteOne({ name: 'Earl Grey' })
+    await seedDatabase()
 
-    expect(teas.map((tea) => [tea.name, tea.price])).toEqual(
-      productDetails.map((details) => [details.name, details.price])
-    )
+    const response = await request(app).get('/api/products')
+
+    expect(response.status).toBe(200)
+    expect(response.body).toMatchObject(productsByName)
   })
 })

@@ -9,7 +9,7 @@
     "node": ">=22.12"
   },
   "scripts": {
-    "start": "node src/server.js",
+    "start": "node --env-file-if-exists=.env src/server.js",
     "dev": "node --watch --env-file-if-exists=.env src/server.js",
     "test": "vitest run",
     "lint": "eslint .",
@@ -22,12 +22,16 @@
     "express": "^5.3.0",
     "helmet": "^8.3.0",
     "http-errors": "^2.0.1",
-    "morgan": "^1.12.1"
+    "mongoose": "^9.10.4",
+    "morgan": "^1.12.1",
+    "nanoid": "^6.0.1",
+    "validator": "^13.15.35"
   },
   "devDependencies": {
     "@lnu/eslint-config": "^2.0.17",
     "eslint": "^10.13.0",
     "eslint-config-prettier": "^10.1.8",
+    "mongodb-memory-server": "^11.3.0",
     "prettier": "^3.9.10",
     "supertest": "^7.3.1",
     "vitest": "^5.0.5"
