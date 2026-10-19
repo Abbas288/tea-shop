@@ -31,7 +31,7 @@ describe('ApiClient', () => {
     expect(products).toHaveLength(1)
     expect(products[0]).toBeInstanceOf(Product)
     expect(products[0].name).toBe('Rooibos')
-    expect(fetch).toHaveBeenCalledWith('/api/products')
+    expect(fetch).toHaveBeenCalledWith('api/products')
   })
 
   it('throws an ApiError when the server answers with an error', async () => {

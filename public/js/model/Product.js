@@ -55,7 +55,7 @@ export class Product {
   /**
    * Path to the picture, on the shop's own server.
    *
-   * @returns {string} Such as "/images/teas/earl-grey.webp".
+   * @returns {string} Such as "images/teas/earl-grey.webp".
    */
   get image() {
     return this.#image

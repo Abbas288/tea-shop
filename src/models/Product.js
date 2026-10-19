@@ -14,7 +14,7 @@ export class Product {
    * @param {string} details.name - Such as "Earl Grey", without spaces at the start or end.
    * @param {string} details.description - One or two short sentences.
    * @param {number} details.price - A positive integer.
-   * @param {string} details.image - Path to the picture, such as "/images/teas/earl-grey.webp".
+   * @param {string} details.image - Path to the picture, such as "images/teas/earl-grey.webp".
    * @throws {TypeError} If a value is missing, empty or of the wrong type, or the name starts or ends with a space.
    * @throws {RangeError} If the price is not a positive integer.
    */

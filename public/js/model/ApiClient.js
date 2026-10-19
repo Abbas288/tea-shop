@@ -12,7 +12,7 @@ export class ApiClient {
    * @throws {ApiError} If the server cannot be reached, answers with an error, or sends something else.
    */
   async getProducts() {
-    const productDetails = await this.#getJson('/api/products')
+    const productDetails = await this.#getJson('api/products')
 
     try {
       return productDetails.map((details) => new Product(details))
@@ -24,7 +24,7 @@ export class ApiClient {
   /**
    * Any answer but 2xx counts as a failure, and so does an answer that is not JSON.
    *
-   * @param {string} path - Such as "/api/products".
+   * @param {string} path - Such as "api/products".
    * @returns {Promise<*>} The parsed answer.
    */
   async #getJson(path) {
