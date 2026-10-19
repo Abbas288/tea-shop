@@ -2,7 +2,8 @@ import { ShoppingCartWrapper } from './ShoppingCartWrapper.js'
 import { QuantityError } from './QuantityError.js'
 
 /**
- * Keeps the cart in the browser between pages and visits. Only the name and the bags of each tea are saved;
+ * Keeps the cart in the browser between pages and visits.
+ * Only the name and the bags of each tea are saved;
  * the prices come from the shop when the cart is loaded.
  */
 export class CartStorage {
@@ -10,7 +11,7 @@ export class CartStorage {
   #key = 'tea-shop-cart'
 
   /**
-   * Nothing is read or saved until load or save is called.
+   * Saves the cart in the given storage.
    *
    * @param {Storage} storage - Such as window.localStorage.
    */

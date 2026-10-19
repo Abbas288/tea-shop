@@ -1,6 +1,6 @@
 /**
- * The shop's API could not be reached, or did not send what was asked for. Any other error is a bug in the
- * page itself.
+ * The shop's API could not be reached,
+ * or did not send what was asked for.
  */
 export class ApiError extends Error {
   /**

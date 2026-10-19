@@ -1,13 +1,14 @@
 /**
- * Shows the teas on the shop page. Each tea is a copy of the product template in the page, with Furni's
- * markup. Text is set with textContent and is never read as HTML.
+ * Shows the teas on the shop page,
+ * one copy of the product template per tea.
+ * Text is never read as HTML.
  */
 export class ProductList {
   #list
   #template
 
   /**
-   * Shows nothing until show is called.
+   * Draws into the row, with one copy of the template per tea.
    *
    * @param {HTMLElement} list - The row the products go in.
    * @param {HTMLTemplateElement} template - The markup of one product.

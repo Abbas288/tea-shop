@@ -8,7 +8,7 @@ export class ShopPage {
   #productList
 
   /**
-   * Nothing is fetched until show is called.
+   * Shows teas from the API in the product list.
    *
    * @param {import('../model/ApiClient.js').ApiClient} api - Fetches the teas.
    * @param {import('../view/ProductList.js').ProductList} productList - Shows them.
@@ -19,8 +19,7 @@ export class ShopPage {
   }
 
   /**
-   * Fetches the teas and shows them. If the API fails, the page says so. Any other error is a bug, and is
-   * thrown again and shows in the console.
+   * Fetches the teas and shows them, or a message if the API fails. Any other error is thrown again.
    */
   async show() {
     try {

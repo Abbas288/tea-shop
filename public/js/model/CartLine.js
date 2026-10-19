@@ -1,5 +1,6 @@
 /**
- * One tea in the cart, with its bags and what they cost. A line does not change when the cart changes.
+ * One tea in the cart, with its bags and what they cost.
+ * A line does not change when the cart changes.
  */
 export class CartLine {
   #product
@@ -7,7 +8,7 @@ export class CartLine {
   #total
 
   /**
-   * The values are taken as they are.
+   * The values are not checked.
    *
    * @param {import('./Product.js').Product} product - The tea.
    * @param {number} quantity - Bags, 1 or more.

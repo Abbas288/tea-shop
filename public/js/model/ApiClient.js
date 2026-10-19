@@ -2,8 +2,7 @@ import { ApiError } from './ApiError.js'
 import { Product } from './Product.js'
 
 /**
- * Talks to the shop's API. What comes back is checked here and turned into objects, and every problem with
- * the API becomes an ApiError.
+ * Calls the shop's API. Every problem with the API becomes an ApiError.
  */
 export class ApiClient {
   /**

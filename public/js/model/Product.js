@@ -1,6 +1,6 @@
 /**
- * A tea as the browser gets it from the shop's API. The values are checked when it is created, and a page
- * never shows a tea with a missing name or a price that is not a number.
+ * A tea as the browser gets it from the shop's API.
+ * Every value is checked when it is created.
  */
 export class Product {
   #name
