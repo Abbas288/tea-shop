@@ -1,3 +1,3 @@
-import { ReceiptView } from './view/ReceiptView.js'
+import './components/tea-receipt/index.js'
 
-new ReceiptView(document.querySelector('main')).show()
+document.querySelector('tea-receipt').show()
