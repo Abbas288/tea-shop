@@ -1,8 +1,11 @@
+import { cssTemplate } from '../shop.css.js'
+import { htmlTemplate } from './tea-checkout.html.js'
+
 /**
- * Shows the checkout page with the delivery form, the order with its sums and the button that places it. The browser
- * checks the form before the customer can send it.
+ * The checkout page's delivery form, the order with its sums and the button that places it. The browser checks the
+ * form before the customer can send it.
  */
-export class CheckoutView {
+export class TeaCheckout extends HTMLElement {
   #form
   #lines
   #template
@@ -14,26 +17,30 @@ export class CheckoutView {
   #placeOrderButton
 
   /**
-   * Finds its parts by their ids inside the element it shows.
-   *
-   * @param {HTMLElement} root - The page's main element.
+   * Builds the form and the order in a shadow root.
    */
-  constructor(root) {
-    this.#form = root.querySelector('#checkout-form')
-    this.#lines = root.querySelector('#order-lines')
-    this.#template = root.querySelector('#order-line-template')
-    this.#subtotal = root.querySelector('#order-subtotal')
-    this.#discountLabel = root.querySelector('#order-discount-label')
-    this.#discount = root.querySelector('#order-discount')
-    this.#total = root.querySelector('#order-total')
-    this.#message = root.querySelector('#checkout-message')
+  constructor() {
+    super()
+
+    this.attachShadow({ mode: 'open' })
+    this.shadowRoot.appendChild(cssTemplate.content.cloneNode(true))
+    this.shadowRoot.appendChild(htmlTemplate.content.cloneNode(true))
+
+    this.#form = this.shadowRoot.querySelector('#checkout-form')
+    this.#lines = this.shadowRoot.querySelector('#order-lines')
+    this.#template = this.shadowRoot.querySelector('#order-line-template')
+    this.#subtotal = this.shadowRoot.querySelector('#order-subtotal')
+    this.#discountLabel = this.shadowRoot.querySelector('#order-discount-label')
+    this.#discount = this.shadowRoot.querySelector('#order-discount')
+    this.#total = this.shadowRoot.querySelector('#order-total')
+    this.#message = this.shadowRoot.querySelector('#checkout-message')
     this.#placeOrderButton = this.#form.querySelector('button[type="submit"]')
   }
 
   /**
    * Shows every tea and the sums, and lets the customer place the order.
    *
-   * @param {import('../model/ShoppingCartWrapper.js').ShoppingCartWrapper} cart - The cart to order.
+   * @param {import('../../model/ShoppingCartWrapper.js').ShoppingCartWrapper} cart - The cart to order.
    */
   showOrder(cart) {
     const rows = cart.listLines().map((line) => this.#createRow(line))
@@ -103,7 +110,7 @@ export class CheckoutView {
   /**
    * A row made from the line template.
    *
-   * @param {import('../model/CartLine.js').CartLine} line - One tea in the cart.
+   * @param {import('../../model/CartLine.js').CartLine} line - One tea in the cart.
    * @returns {HTMLTableRowElement} The new row.
    */
   #createRow(line) {

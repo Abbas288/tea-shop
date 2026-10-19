@@ -18,7 +18,7 @@ export class CheckoutPage {
    *
    * @param {import('../model/ApiClient.js').ApiClient} api - Gets the teas and places the order.
    * @param {import('../model/CartStorage.js').CartStorage} cartStorage - Holds the saved cart.
-   * @param {import('../view/CheckoutView.js').CheckoutView} checkoutView - Shows the page.
+   * @param {import('../components/tea-checkout/tea-checkout.js').TeaCheckout} checkoutView - Shows the page.
    */
   constructor(api, cartStorage, checkoutView) {
     this.#api = api
