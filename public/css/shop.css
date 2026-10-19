@@ -92,6 +92,7 @@
 .product-section .product-item .product-description {
   display: block;
   margin-bottom: 1rem;
+  color: #5c636a;
 }
 
 /*
@@ -115,4 +116,23 @@
 
 .product-section .product-item:focus-visible::before {
   height: 70%;
+}
+
+/*
+ * Furni's menu links and banner text are too faint on the green background. With these values the contrast is
+ * about 5 to 1.
+ */
+.custom-navbar .custom-navbar-nav li a {
+  opacity: 0.75;
+}
+
+.hero p {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/*
+ * Links in the footer text are underlined, so they do not rely on color alone.
+ */
+.footer-section .copyright p a {
+  text-decoration: underline;
 }
