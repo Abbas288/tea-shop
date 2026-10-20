@@ -28,7 +28,10 @@ export class AdminPage {
   async show() {
     this.#logOutButton.addEventListener('click', () => this.#logOut())
     this.#orderAdmin.onOpen((number) => this.#openOrder(number))
-    this.#orderAdmin.onStatusChange((number, eventName) => this.#changeStatus(number, eventName))
+    this.#orderAdmin.onStatusChange((number, eventName) =>
+      this.#changeStatus(number, () => this.#api.changeOrderStatus(number, eventName))
+    )
+    this.#orderAdmin.onUndo((number) => this.#changeStatus(number, () => this.#api.undoOrderStatus(number)))
 
     await this.#showOrders()
   }
@@ -62,11 +65,11 @@ export class AdminPage {
    * since another tab may have changed the order, and the reason is shown.
    *
    * @param {string} number - The open order.
-   * @param {string} eventName - Such as "pack".
+   * @param {() => Promise<import('../services/ApiClient.js').AdminOrder>} sendChange - Asks the server for the change.
    */
-  async #changeStatus(number, eventName) {
+  async #changeStatus(number, sendChange) {
     try {
-      this.#orderAdmin.showOrder(await this.#api.changeOrderStatus(number, eventName))
+      this.#orderAdmin.showOrder(await sendChange())
     } catch (error) {
       await this.#openOrder(number)
       await this.#showOrders()

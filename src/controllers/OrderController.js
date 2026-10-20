@@ -123,16 +123,29 @@ export class OrderController {
    */
   async changeStatus(req, res) {
     const event = req.body?.event
-    const lifecycle = new OrderLifecycle(req.doc.status)
+    const lifecycle = new OrderLifecycle(req.doc.status, req.doc.statusEvents)
 
     if (!Object.values(ORDER_EVENTS).includes(event)) {
       throw createError(400, 'Choose pack, ship, deliver or cancel.')
     }
 
-    this.#changeStatusOf(lifecycle, event)
-    req.doc.status = lifecycle.status
-    req.doc.statusChangedAt = new Date()
-    await req.doc.save()
+    this.#changeOrRefuse(() => lifecycle.changeStatus(event))
+    await this.#saveStatus(req.doc, lifecycle)
+
+    res.json(this.#detailsOf(req.doc))
+  }
+
+  /**
+   * Undoes the order's latest status change and sends the order. An order without a change to undo gets 409.
+   *
+   * @param {import('express').Request} req - Express request object.
+   * @param {import('express').Response} res - Express response object.
+   */
+  async undoStatusChange(req, res) {
+    const lifecycle = new OrderLifecycle(req.doc.status, req.doc.statusEvents)
+
+    this.#changeOrRefuse(() => lifecycle.undoLastChange())
+    await this.#saveStatus(req.doc, lifecycle)
 
     res.json(this.#detailsOf(req.doc))
   }
@@ -172,6 +185,7 @@ export class OrderController {
    */
   #detailsOf(orderDoc) {
     const { name, email, street, postalCode, city } = orderDoc.customer
+    const lifecycle = new OrderLifecycle(orderDoc.status, orderDoc.statusEvents)
 
     return {
       number: orderDoc.number,
@@ -184,19 +198,19 @@ export class OrderController {
       discountCode: orderDoc.discountCode,
       discount: orderDoc.discount,
       total: orderDoc.total,
-      allowedEvents: new OrderLifecycle(orderDoc.status).listAllowedEvents(),
+      allowedEvents: lifecycle.listAllowedEvents(),
+      lastEvent: lifecycle.lastEvent,
     }
   }
 
   /**
-   * An event the order cannot take now becomes 409 with the reason.
+   * A change the order cannot take now becomes 409 with the reason.
    *
-   * @param {OrderLifecycle} lifecycle - The order's lifecycle, which changes.
-   * @param {string} event - One of ORDER_EVENTS.
+   * @param {() => void} change - Changes the order's lifecycle, such as () => lifecycle.changeStatus('pack').
    */
-  #changeStatusOf(lifecycle, event) {
+  #changeOrRefuse(change) {
     try {
-      lifecycle.changeStatus(event)
+      change()
     } catch (error) {
       if (!(error instanceof StatusChangeError)) {
         throw error
@@ -204,6 +218,19 @@ export class OrderController {
 
       throw createError(409, error.message, { cause: error })
     }
+  }
+
+  /**
+   * Saves the lifecycle's status and events, and when the status changed.
+   *
+   * @param {import('mongoose').Document & object} orderDoc - The order.
+   * @param {OrderLifecycle} lifecycle - The order's changed lifecycle.
+   */
+  async #saveStatus(orderDoc, lifecycle) {
+    orderDoc.status = lifecycle.status
+    orderDoc.statusEvents = lifecycle.listEvents()
+    orderDoc.statusChangedAt = new Date()
+    await orderDoc.save()
   }
 
   /**

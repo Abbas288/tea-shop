@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 import { customAlphabet } from 'nanoid'
 import validator from 'validator'
 import { ORDER_RULES } from '../constants/orderRules.js'
-import { ORDER_STATUSES } from '../constants/orderStatuses.js'
+import { ORDER_EVENTS, ORDER_STATUSES } from '../constants/orderStatuses.js'
 import { BASE_SCHEMA } from './baseSchema.js'
 
 const { isEmail } = validator
@@ -114,6 +114,8 @@ const schema = new mongoose.Schema({
     default: ORDER_STATUSES.RECEIVED,
   },
   statusChangedAt: { type: Date, required: true, default: Date.now },
+  // The events behind the status, oldest first. OrderLifecycle replays them to undo the latest change.
+  statusEvents: [{ type: String, enum: Object.values(ORDER_EVENTS) }],
 })
 
 schema.add(BASE_SCHEMA)

@@ -46,7 +46,8 @@ export class TeaAdminOrders extends TeaElement {
   }
 
   /**
-   * Shows the order, with a button for each event it can take now. Cancel is red.
+   * Shows the order, with a button for each event it can take now and one that undoes the latest change. Cancel is
+   * red.
    *
    * @param {import('../../services/ApiClient.js').AdminOrder} order - From ApiClient.
    */
@@ -54,6 +55,7 @@ export class TeaAdminOrders extends TeaElement {
     const { name, email, street, postalCode, city } = order.customer
     const lineRows = order.lines.map((line) => this.#createLineRow(line))
     const buttons = order.allowedEvents.map((eventName) => this.#createStatusButton(eventName))
+    const undoButtons = order.lastEvent === '' ? [] : [this.#createUndoButton(order.lastEvent)]
 
     this.#openNumber = order.number
     this.#setText('#order-number', order.number)
@@ -68,7 +70,7 @@ export class TeaAdminOrders extends TeaElement {
     this.#setText('#order-discount', order.discount === 0 ? '0 kr' : `−${order.discount} kr`)
     this.#setText('#order-total', `${order.total} kr`)
     this.#lines.replaceChildren(...lineRows)
-    this.#statusButtons.replaceChildren(...buttons)
+    this.#statusButtons.replaceChildren(...buttons, ...undoButtons)
     this.#message.textContent = ''
     this.#openOrder.hidden = false
   }
@@ -106,10 +108,23 @@ export class TeaAdminOrders extends TeaElement {
    */
   onStatusChange(handler) {
     this.#statusButtons.addEventListener('click', (event) => {
-      const button = event.target.closest('button')
+      const button = event.target.closest('button[data-event]')
 
       if (button) {
         handler(this.#openNumber, button.dataset.event)
+      }
+    })
+  }
+
+  /**
+   * Calls the handler when the admin clicks the undo button of the open order.
+   *
+   * @param {(number: string) => void} handler - Gets the order number.
+   */
+  onUndo(handler) {
+    this.#statusButtons.addEventListener('click', (event) => {
+      if (event.target.closest('button[data-undo]')) {
+        handler(this.#openNumber)
       }
     })
   }
@@ -161,6 +176,23 @@ export class TeaAdminOrders extends TeaElement {
     button.className = eventName === CANCEL ? 'btn btn-sm btn-outline-danger' : 'btn btn-sm btn-primary'
     button.dataset.event = eventName
     button.textContent = eventName
+
+    return button
+  }
+
+  /**
+   * A grey button that names the change it undoes.
+   *
+   * @param {string} lastEvent - Such as "pack".
+   * @returns {HTMLButtonElement} The new button.
+   */
+  #createUndoButton(lastEvent) {
+    const button = document.createElement('button')
+
+    button.type = 'button'
+    button.className = 'btn btn-sm btn-outline-secondary'
+    button.dataset.undo = lastEvent
+    button.textContent = `undo ${lastEvent}`
 
     return button
   }

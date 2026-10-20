@@ -72,6 +72,7 @@ describe('The admin and the orders', () => {
     ['an order', (number) => request(app).get(`/api/admin/orders/${number}`)],
     ['an unknown order', () => request(app).get('/api/admin/orders/AAAAAAAA')],
     ['a status change', (number) => request(app).post(`/api/admin/orders/${number}/events`).send({ event: 'pack' })],
+    ['an undo', (number) => request(app).post(`/api/admin/orders/${number}/undo`)],
   ])('refuses %s with 401 without login', async (_case, askAsAnyone) => {
     const number = await placeOrder()
 
@@ -140,6 +141,32 @@ describe('The admin and the orders', () => {
     expect(response.status).toBe(409)
     expect(response.body.message).toContain('cannot be changed')
     expect((await OrderModel.findOne({ number })).status).toBe(status)
+  })
+
+  it('undoes the latest change step by step, back along the way the order went', async () => {
+    const number = await placeOrder()
+    const agent = await logInAsAdmin()
+
+    await sendEvent(agent, number, 'pack')
+    await sendEvent(agent, number, 'cancel')
+
+    const firstUndo = await agent.post(`/api/admin/orders/${number}/undo`)
+    const secondUndo = await agent.post(`/api/admin/orders/${number}/undo`)
+    const tracking = await request(app).post(`/api/orders/${number}/tracking`).send({ email: customer.email })
+
+    expect(firstUndo.body).toMatchObject({ status: 'packed', lastEvent: 'pack', allowedEvents: ['ship', 'cancel'] })
+    expect(secondUndo.body).toMatchObject({ status: 'received', lastEvent: '' })
+    expect(tracking.body.status).toBe('received')
+  })
+
+  it('refuses to undo an order without changes with 409', async () => {
+    const number = await placeOrder()
+    const agent = await logInAsAdmin()
+
+    const response = await agent.post(`/api/admin/orders/${number}/undo`)
+
+    expect(response.status).toBe(409)
+    expect((await OrderModel.findOne({ number })).status).toBe('received')
   })
 
   it.each([

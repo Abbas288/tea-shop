@@ -12,12 +12,13 @@ export class OrderLifecycle {
   #machine
 
   /**
-   * Starts at the order's saved status.
+   * Starts at the order's saved status. With the events that led there, the latest change can also be undone.
    *
    * @param {string} status - One of ORDER_STATUSES, such as "packed".
+   * @param {string[]} [events] - The events sent so far, oldest first, such as ["pack"].
    */
-  constructor(status) {
-    this.#machine = this.#createMachine(status)
+  constructor(status, events = []) {
+    this.#machine = this.#createMachineWithHistory(status, events)
   }
 
   /**
@@ -27,6 +28,24 @@ export class OrderLifecycle {
    */
   get status() {
     return this.#machine.currentStateName
+  }
+
+  /**
+   * The event behind the latest change, which undo reverses.
+   *
+   * @returns {string} Such as "pack", or "" if there is nothing to undo.
+   */
+  get lastEvent() {
+    return this.#machine.history.at(-1)?.eventName ?? ''
+  }
+
+  /**
+   * Lists the events behind the order's status, oldest first.
+   *
+   * @returns {string[]} Such as ["pack", "cancel"].
+   */
+  listEvents() {
+    return this.#machine.history.map((entry) => entry.eventName)
   }
 
   /**
@@ -57,6 +76,19 @@ export class OrderLifecycle {
   }
 
   /**
+   * Moves the order back to the step before its latest change.
+   *
+   * @throws {StatusChangeError} If there is no change to undo.
+   */
+  undoLastChange() {
+    if (this.lastEvent === '') {
+      throw new StatusChangeError(this.status, 'undo')
+    }
+
+    this.#machine.undoLastMove()
+  }
+
+  /**
    * Lists the steps from "received" to the order's status.
    *
    * @returns {string[]} Such as ["received", "packed"], or ["received", "cancelled"].
@@ -80,6 +112,29 @@ export class OrderLifecycle {
     }
 
     return this.#walkTo(machineFromNow, DELIVERED)
+  }
+
+  /**
+   * Replays the events from "received", so the machine's history holds the order's changes. Events that do not lead
+   * to the status, such as none at all for an order saved before the events were kept, give a machine without
+   * history.
+   *
+   * @param {string} status - The order's saved status.
+   * @param {string[]} events - The saved events, oldest first.
+   * @returns {StateMachine} A new machine at the status.
+   */
+  #createMachineWithHistory(status, events) {
+    const machine = this.#createMachine(RECEIVED)
+
+    for (const eventName of events) {
+      if (!machine.canSend(eventName)) {
+        break
+      }
+
+      machine.send(eventName)
+    }
+
+    return machine.currentStateName === status ? machine : this.#createMachine(status)
   }
 
   /**

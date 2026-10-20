@@ -22,3 +22,6 @@ router.get('/:number', (req, res) => controller.find(req, res))
 
 // POST admin/orders/:number/events
 router.post('/:number/events', (req, res) => controller.changeStatus(req, res))
+
+// POST admin/orders/:number/undo
+router.post('/:number/undo', (req, res) => controller.undoStatusChange(req, res))

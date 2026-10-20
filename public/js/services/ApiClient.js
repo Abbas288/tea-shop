@@ -14,7 +14,7 @@ import { Product } from '../model/Product.js'
  * @typedef {{ number: string, createdAt: Date, status: string, statusChangedAt: Date,
  *   customer: { name: string, email: string, street: string, postalCode: string, city: string },
  *   lines: Array<{ name: string, price: number, quantity: number }>, subtotal: number, discountCode: string,
- *   discount: number, total: number, allowedEvents: string[] }} AdminOrder
+ *   discount: number, total: number, allowedEvents: string[], lastEvent: string }} AdminOrder
  */
 
 /**
@@ -155,6 +155,24 @@ export class ApiClient {
    */
   async changeOrderStatus(number, event) {
     const answer = await this.#postJson(`api/admin/orders/${encodeURIComponent(number)}/events`, { event })
+
+    if (!this.#isAdminOrder(answer)) {
+      throw new ApiError('The server did not send the order.')
+    }
+
+    return this.#toAdminOrder(answer)
+  }
+
+  /**
+   * Undoes the order's latest status change.
+   *
+   * @param {string} number - Such as "K7Q2M9XD".
+   * @returns {Promise<AdminOrder>} The changed order.
+   * @throws {ApiError} Status 409 if there is no change to undo, 401 if the admin is not logged in, or if the server
+   *   cannot answer.
+   */
+  async undoOrderStatus(number) {
+    const answer = await this.#postJson(`api/admin/orders/${encodeURIComponent(number)}/undo`, {})
 
     if (!this.#isAdminOrder(answer)) {
       throw new ApiError('The server did not send the order.')
@@ -385,7 +403,8 @@ export class ApiClient {
       answer.lines.every((line) => this.#isOrderLine(line)) &&
       [answer?.subtotal, answer?.discount].every(Number.isInteger) &&
       typeof answer?.discountCode === 'string' &&
-      this.#isListOfText(answer?.allowedEvents)
+      this.#isListOfText(answer?.allowedEvents) &&
+      typeof answer?.lastEvent === 'string'
     )
   }
 
@@ -427,6 +446,7 @@ export class ApiClient {
       discountCode: answer.discountCode,
       discount: answer.discount,
       allowedEvents: [...answer.allowedEvents],
+      lastEvent: answer.lastEvent,
     }
   }
 }
