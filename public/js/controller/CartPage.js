@@ -18,7 +18,7 @@ export class CartPage {
    *
    * @param {import('../model/ApiClient.js').ApiClient} api - Fetches the teas and their prices.
    * @param {import('../model/CartStorage.js').CartStorage} cartStorage - Keeps the cart between pages.
-   * @param {import('../view/CartView.js').CartView} cartView - Shows the cart.
+   * @param {import('../components/tea-cart/tea-cart.js').TeaCart} cartView - Shows the cart.
    */
   constructor(api, cartStorage, cartView) {
     this.#api = api

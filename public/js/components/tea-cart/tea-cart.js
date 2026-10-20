@@ -1,8 +1,11 @@
+import { cssTemplate } from '../shop.css.js'
+import { htmlTemplate } from './tea-cart.html.js'
+
 /**
- * Shows the cart page. Each tea is a row made from the line template. A row is updated in place, and focus stays
- * on the button the customer used.
+ * The cart page's teas, discount code and sums. Each tea is a row made from the line template. A row is updated in
+ * place, and focus stays on the button the customer used.
  */
-export class CartView {
+export class TeaCart extends HTMLElement {
   #lines
   #template
   #message
@@ -17,28 +20,32 @@ export class CartView {
   #rows = new Map()
 
   /**
-   * Finds its parts by their ids inside the element it shows.
-   *
-   * @param {HTMLElement} root - The page's main element.
+   * Builds the cart in a shadow root.
    */
-  constructor(root) {
-    this.#lines = root.querySelector('#cart-lines')
-    this.#template = root.querySelector('#cart-line-template')
-    this.#message = root.querySelector('#cart-message')
-    this.#subtotal = root.querySelector('#cart-subtotal')
-    this.#discountLabel = root.querySelector('#cart-discount-label')
-    this.#discount = root.querySelector('#cart-discount')
-    this.#total = root.querySelector('#cart-total')
-    this.#discountForm = root.querySelector('#discount-form')
-    this.#discountMessage = root.querySelector('#discount-message')
-    this.#checkoutLink = root.querySelector('#checkout-link')
+  constructor() {
+    super()
+
+    this.attachShadow({ mode: 'open' })
+    this.shadowRoot.appendChild(cssTemplate.content.cloneNode(true))
+    this.shadowRoot.appendChild(htmlTemplate.content.cloneNode(true))
+
+    this.#lines = this.shadowRoot.querySelector('#cart-lines')
+    this.#template = this.shadowRoot.querySelector('#cart-line-template')
+    this.#message = this.shadowRoot.querySelector('#cart-message')
+    this.#subtotal = this.shadowRoot.querySelector('#cart-subtotal')
+    this.#discountLabel = this.shadowRoot.querySelector('#cart-discount-label')
+    this.#discount = this.shadowRoot.querySelector('#cart-discount')
+    this.#total = this.shadowRoot.querySelector('#cart-total')
+    this.#discountForm = this.shadowRoot.querySelector('#discount-form')
+    this.#discountMessage = this.shadowRoot.querySelector('#discount-message')
+    this.#checkoutLink = this.shadowRoot.querySelector('#checkout-link')
     this.#message.tabIndex = -1
   }
 
   /**
    * Shows every tea in the cart and the sums. An empty cart gets a message and no way to checkout.
    *
-   * @param {import('../model/ShoppingCartWrapper.js').ShoppingCartWrapper} cart - The cart to show.
+   * @param {import('../../model/ShoppingCartWrapper.js').ShoppingCartWrapper} cart - The cart to show.
    */
   show(cart) {
     const lines = cart.listLines()
@@ -143,7 +150,7 @@ export class CartView {
   /**
    * A copy of the line template with what does not change, such as the name and the price.
    *
-   * @param {import('../model/Product.js').Product} product - The tea.
+   * @param {import('../../model/Product.js').Product} product - The tea.
    * @returns {HTMLTableRowElement} The new row, already on the page.
    */
   #addRow(product) {
@@ -167,8 +174,8 @@ export class CartView {
    * The buttons at the limits stay focusable, so focus is not lost when the customer reaches one.
    *
    * @param {HTMLTableRowElement} row - The row to fill.
-   * @param {import('../model/CartLine.js').CartLine} line - The tea's bags and total.
-   * @param {import('../model/ShoppingCartWrapper.js').ShoppingCartWrapper} cart - Says which buttons are allowed.
+   * @param {import('../../model/CartLine.js').CartLine} line - The tea's bags and total.
+   * @param {import('../../model/ShoppingCartWrapper.js').ShoppingCartWrapper} cart - Says which buttons are allowed.
    */
   #fillRow(row, line, cart) {
     const productName = line.product.name
@@ -180,13 +187,14 @@ export class CartView {
   }
 
   /**
-   * Focus moves to the next row, or to the message, if the removed row had it.
+   * Focus moves to the next row, or to the message, if the removed row had it. The page only sees the cart as
+   * focused, so the shadow root says which button is.
    *
    * @param {string} name - The tea of the row.
    * @param {HTMLTableRowElement} row - The row to remove.
    */
   #removeRow(name, row) {
-    const hadFocus = row.contains(document.activeElement)
+    const hadFocus = row.contains(this.shadowRoot.activeElement)
     const neighbour = row.nextElementSibling ?? row.previousElementSibling
 
     row.remove()
