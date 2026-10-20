@@ -1,27 +1,27 @@
+import { TeaElement } from '../TeaElement.js'
+import { htmlTemplate } from './tea-product-list.html.js'
+
 /**
- * Shows the teas on the shop page,
- * one copy of the product template per tea.
- * Text is never read as HTML.
+ * The teas on the shop page, one copy of the product template per tea. Text is never read as HTML.
  */
-export class ProductList {
+export class TeaProductList extends TeaElement {
   #list
   #template
 
   /**
-   * Draws into the row, with one copy of the template per tea.
-   *
-   * @param {HTMLElement} list - The row the products go in.
-   * @param {HTMLTemplateElement} template - The markup of one product.
+   * Builds the product section in a shadow root.
    */
-  constructor(list, template) {
-    this.#list = list
-    this.#template = template
+  constructor() {
+    super(htmlTemplate)
+
+    this.#list = this.shadowRoot.querySelector('#products')
+    this.#template = this.shadowRoot.querySelector('#product-template')
   }
 
   /**
    * Replaces what the list showed before.
    *
-   * @param {import('../model/Product.js').Product[]} products - In the order to show them.
+   * @param {import('../../model/Product.js').Product[]} products - In the order to show them.
    */
   show(products) {
     const items = products.map((product) => this.#createItem(product))
@@ -60,7 +60,7 @@ export class ProductList {
   /**
    * A copy of the template with the tea's values.
    *
-   * @param {import('../model/Product.js').Product} product - One tea.
+   * @param {import('../../model/Product.js').Product} product - One tea.
    * @returns {Element} The column with the product.
    */
   #createItem(product) {

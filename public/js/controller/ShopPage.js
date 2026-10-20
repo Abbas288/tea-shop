@@ -17,9 +17,9 @@ export class ShopPage {
    * Shows teas from the API and puts the ones the customer picks in the cart.
    *
    * @param {import('../model/ApiClient.js').ApiClient} api - Fetches the teas.
-   * @param {import('../view/ProductList.js').ProductList} productList - Shows them.
+   * @param {import('../components/tea-product-list/tea-product-list.js').TeaProductList} productList - Shows them.
    * @param {import('../model/CartStorage.js').CartStorage} cartStorage - Keeps the cart between pages.
-   * @param {import('../view/CartToast.js').CartToast} cartToast - Says what happened to the cart.
+   * @param {import('../components/tea-cart-toast/tea-cart-toast.js').TeaCartToast} cartToast - Says what happened to the cart.
    */
   constructor(api, productList, cartStorage, cartToast) {
     this.#api = api
