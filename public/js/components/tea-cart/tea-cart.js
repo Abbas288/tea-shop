@@ -1,11 +1,11 @@
-import { cssTemplate } from '../shop.css.js'
+import { TeaElement } from '../TeaElement.js'
 import { htmlTemplate } from './tea-cart.html.js'
 
 /**
  * The cart page's teas, discount code and sums. Each tea is a row made from the line template. A row is updated in
  * place, and focus stays on the button the customer used.
  */
-export class TeaCart extends HTMLElement {
+export class TeaCart extends TeaElement {
   #lines
   #template
   #message
@@ -23,11 +23,7 @@ export class TeaCart extends HTMLElement {
    * Builds the cart in a shadow root.
    */
   constructor() {
-    super()
-
-    this.attachShadow({ mode: 'open' })
-    this.shadowRoot.appendChild(cssTemplate.content.cloneNode(true))
-    this.shadowRoot.appendChild(htmlTemplate.content.cloneNode(true))
+    super(htmlTemplate)
 
     this.#lines = this.shadowRoot.querySelector('#cart-lines')
     this.#template = this.shadowRoot.querySelector('#cart-line-template')

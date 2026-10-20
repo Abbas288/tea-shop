@@ -1,10 +1,10 @@
-import { cssTemplate } from '../shop.css.js'
+import { TeaElement } from '../TeaElement.js'
 import { htmlTemplate } from './tea-receipt.html.js'
 
 /**
  * The thank-you page's receipt, with the order number and the link to track the order.
  */
-export class TeaReceipt extends HTMLElement {
+export class TeaReceipt extends TeaElement {
   #message
   #orderNumber
   #tracking
@@ -14,11 +14,7 @@ export class TeaReceipt extends HTMLElement {
    * Builds the receipt in a shadow root.
    */
   constructor() {
-    super()
-
-    this.attachShadow({ mode: 'open' })
-    this.shadowRoot.appendChild(cssTemplate.content.cloneNode(true))
-    this.shadowRoot.appendChild(htmlTemplate.content.cloneNode(true))
+    super(htmlTemplate)
 
     this.#message = this.shadowRoot.querySelector('#receipt-message')
     this.#orderNumber = this.shadowRoot.querySelector('#order-number')

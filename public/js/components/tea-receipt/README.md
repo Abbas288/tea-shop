@@ -16,4 +16,5 @@ document.querySelector('tea-receipt').show()
 | -------- | -------------------------------------------------------------------------------------------------- |
 | `show()` | Reads `number` and `token` from the page address. Without both, it says there is no order to show. |
 
-The shadow root links the shop's stylesheets from `../shop.css.js`, since the page's styles do not reach into it.
+Built on `../TeaElement.js`: the shadow root links the shop's stylesheets, since the page's styles do not reach into it,
+and the component stays hidden until they have loaded.

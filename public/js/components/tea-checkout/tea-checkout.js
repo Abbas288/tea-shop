@@ -1,11 +1,11 @@
-import { cssTemplate } from '../shop.css.js'
+import { TeaElement } from '../TeaElement.js'
 import { htmlTemplate } from './tea-checkout.html.js'
 
 /**
  * The checkout page's delivery form, the order with its sums and the button that places it. The browser checks the
  * form before the customer can send it.
  */
-export class TeaCheckout extends HTMLElement {
+export class TeaCheckout extends TeaElement {
   #form
   #lines
   #template
@@ -20,11 +20,7 @@ export class TeaCheckout extends HTMLElement {
    * Builds the form and the order in a shadow root.
    */
   constructor() {
-    super()
-
-    this.attachShadow({ mode: 'open' })
-    this.shadowRoot.appendChild(cssTemplate.content.cloneNode(true))
-    this.shadowRoot.appendChild(htmlTemplate.content.cloneNode(true))
+    super(htmlTemplate)
 
     this.#form = this.shadowRoot.querySelector('#checkout-form')
     this.#lines = this.shadowRoot.querySelector('#order-lines')

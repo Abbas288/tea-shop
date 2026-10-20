@@ -24,4 +24,5 @@ cartView.show(cart)
 | `onRemove(handler)`            | Calls the handler with the tea when the customer removes it.                                              |
 | `onApplyDiscount(handler)`     | Calls the handler with the typed code when the customer sends the discount form.                          |
 
-The shadow root links the shop's stylesheets from `../shop.css.js`, since the page's styles do not reach into it.
+Built on `../TeaElement.js`: the shadow root links the shop's stylesheets, since the page's styles do not reach into it,
+and the component stays hidden until they have loaded.

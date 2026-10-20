@@ -23,4 +23,5 @@ checkoutView.showOrder(cart)
 | `goToReceipt({ number, token })` | Opens the thank-you page.                                                              |
 | `onPlaceOrder(handler)`          | Calls the handler with the form's values when the customer sends a valid form.         |
 
-The shadow root links the shop's stylesheets from `../shop.css.js`, since the page's styles do not reach into it.
+Built on `../TeaElement.js`: the shadow root links the shop's stylesheets, since the page's styles do not reach into it,
+and the component stays hidden until they have loaded.
