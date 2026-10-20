@@ -7,6 +7,17 @@ import { Product } from '../model/Product.js'
  */
 
 /**
+ * @typedef {{ number: string, createdAt: Date, status: string, total: number }} OrderSummary
+ */
+
+/**
+ * @typedef {{ number: string, createdAt: Date, status: string, statusChangedAt: Date,
+ *   customer: { name: string, email: string, street: string, postalCode: string, city: string },
+ *   lines: Array<{ name: string, price: number, quantity: number }>, subtotal: number, discountCode: string,
+ *   discount: number, total: number, allowedEvents: string[] }} AdminOrder
+ */
+
+/**
  * Calls the shop's API. Every problem with the API becomes an ApiError.
  */
 export class ApiClient {
@@ -97,6 +108,59 @@ export class ApiClient {
    */
   async logOut() {
     await this.#postJson('api/admin/logout', {})
+  }
+
+  /**
+   * Lists every order for the admin, newest first.
+   *
+   * @returns {Promise<OrderSummary[]>} The orders, with the time as a Date.
+   * @throws {ApiError} Status 401 if the admin is not logged in, or if the server cannot answer.
+   */
+  async getAdminOrders() {
+    const answer = await this.#requestJson('api/admin/orders')
+
+    if (!Array.isArray(answer) || !answer.every((order) => this.#isOrderSummary(order))) {
+      throw new ApiError('The server did not send a list of orders.')
+    }
+
+    return answer.map((order) => this.#toOrderSummary(order))
+  }
+
+  /**
+   * Fetches an order with the customer, the teas and the events it can take now.
+   *
+   * @param {string} number - Such as "K7Q2M9XD".
+   * @returns {Promise<AdminOrder>} The order, with the times as Dates.
+   * @throws {ApiError} Status 401 if the admin is not logged in, 404 for an unknown order, or if the server cannot
+   *   answer.
+   */
+  async getAdminOrder(number) {
+    const answer = await this.#requestJson(`api/admin/orders/${encodeURIComponent(number)}`)
+
+    if (!this.#isAdminOrder(answer)) {
+      throw new ApiError('The server did not send the order.')
+    }
+
+    return this.#toAdminOrder(answer)
+  }
+
+  /**
+   * Changes the order's status with the event.
+   *
+   * @param {string} number - Such as "K7Q2M9XD".
+   * @param {string} event - Such as "pack".
+   * @returns {Promise<AdminOrder>} The changed order.
+   * @throws {ApiError} Status 409 for an event the order cannot take now, 401 if the admin is not logged in, or if the
+   *   server cannot answer.
+   */
+  async changeOrderStatus(number, event) {
+    const answer = await this.#postJson(`api/admin/orders/${encodeURIComponent(number)}/events`, { event })
+
+    if (!this.#isAdminOrder(answer)) {
+      throw new ApiError('The server did not send the order.')
+    }
+
+    return this.#toAdminOrder(answer)
   }
 
   /**
@@ -278,6 +342,91 @@ export class ApiClient {
       statusChangedAt: new Date(answer.statusChangedAt),
       completedSteps: [...answer.completedSteps],
       remainingSteps: [...answer.remainingSteps],
+    }
+  }
+
+  /**
+   * Checks each field of a row in the admin's list.
+   *
+   * @param {*} order - Part of the parsed answer.
+   * @returns {boolean} True if every field has the right type.
+   */
+  #isOrderSummary(order) {
+    return (
+      typeof order?.number === 'string' &&
+      this.#isDate(order?.createdAt) &&
+      typeof order?.status === 'string' &&
+      Number.isInteger(order?.total)
+    )
+  }
+
+  /**
+   * Leaves out fields the list does not show.
+   *
+   * @param {*} order - A row #isOrderSummary accepts.
+   * @returns {OrderSummary} The row, with the time as a Date.
+   */
+  #toOrderSummary(order) {
+    return { number: order.number, createdAt: new Date(order.createdAt), status: order.status, total: order.total }
+  }
+
+  /**
+   * Checks each field the admin's order view shows.
+   *
+   * @param {*} answer - The parsed answer.
+   * @returns {boolean} True if every field has the right type.
+   */
+  #isAdminOrder(answer) {
+    return (
+      this.#isOrderSummary(answer) &&
+      this.#isDate(answer?.statusChangedAt) &&
+      this.#isCustomer(answer?.customer) &&
+      Array.isArray(answer?.lines) &&
+      answer.lines.every((line) => this.#isOrderLine(line)) &&
+      [answer?.subtotal, answer?.discount].every(Number.isInteger) &&
+      typeof answer?.discountCode === 'string' &&
+      this.#isListOfText(answer?.allowedEvents)
+    )
+  }
+
+  /**
+   * Every field is text.
+   *
+   * @param {*} customer - Part of an answer.
+   * @returns {boolean} True for a name, an email address, a street, a postal code and a city.
+   */
+  #isCustomer(customer) {
+    return ['name', 'email', 'street', 'postalCode', 'city'].every((field) => typeof customer?.[field] === 'string')
+  }
+
+  /**
+   * A tea with its price and number of bags.
+   *
+   * @param {*} line - Part of an answer.
+   * @returns {boolean} True if every field has the right type.
+   */
+  #isOrderLine(line) {
+    return typeof line?.name === 'string' && Number.isInteger(line?.price) && Number.isInteger(line?.quantity)
+  }
+
+  /**
+   * Copies the customer, the lines and the events.
+   *
+   * @param {*} answer - An answer #isAdminOrder accepts.
+   * @returns {AdminOrder} The order, with the times as Dates.
+   */
+  #toAdminOrder(answer) {
+    const { name, email, street, postalCode, city } = answer.customer
+
+    return {
+      ...this.#toOrderSummary(answer),
+      statusChangedAt: new Date(answer.statusChangedAt),
+      customer: { name, email, street, postalCode, city },
+      lines: answer.lines.map((line) => ({ name: line.name, price: line.price, quantity: line.quantity })),
+      subtotal: answer.subtotal,
+      discountCode: answer.discountCode,
+      discount: answer.discount,
+      allowedEvents: [...answer.allowedEvents],
     }
   }
 }

@@ -1,8 +1,10 @@
 import createError from 'http-errors'
+import { ORDER_EVENTS } from '../constants/orderStatuses.js'
 import { DiscountCodeModel } from '../models/DiscountCodeModel.js'
 import { OrderLifecycle } from '../models/OrderLifecycle.js'
 import { OrderModel } from '../models/OrderModel.js'
 import { ProductModel } from '../models/ProductModel.js'
+import { StatusChangeError } from '../models/StatusChangeError.js'
 
 const ORDER_NOT_FOUND = 'There is no order with this number and email address.'
 
@@ -91,6 +93,51 @@ export class OrderController {
   }
 
   /**
+   * Sends every order for the admin's list, newest first.
+   *
+   * @param {import('express').Request} _req - Express request object.
+   * @param {import('express').Response} res - Express response object.
+   */
+  async findAll(_req, res) {
+    const orderDocs = await OrderModel.find().sort({ createdAt: -1 })
+
+    res.json(orderDocs.map((orderDoc) => this.#summaryOf(orderDoc)))
+  }
+
+  /**
+   * Sends the order with the customer, the teas and the events the admin can send now.
+   *
+   * @param {import('express').Request} req - Express request object.
+   * @param {import('express').Response} res - Express response object.
+   */
+  find(req, res) {
+    res.json(this.#detailsOf(req.doc))
+  }
+
+  /**
+   * Changes the order's status with the event in the body, such as { "event": "pack" }, and sends the order. An
+   * unknown event gets 400, and an event the order cannot take now gets 409.
+   *
+   * @param {import('express').Request} req - Express request object.
+   * @param {import('express').Response} res - Express response object.
+   */
+  async changeStatus(req, res) {
+    const event = req.body?.event
+    const lifecycle = new OrderLifecycle(req.doc.status)
+
+    if (!Object.values(ORDER_EVENTS).includes(event)) {
+      throw createError(400, 'Choose pack, ship, deliver or cancel.')
+    }
+
+    this.#changeStatusOf(lifecycle, event)
+    req.doc.status = lifecycle.status
+    req.doc.statusChangedAt = new Date()
+    await req.doc.save()
+
+    res.json(this.#detailsOf(req.doc))
+  }
+
+  /**
    * Ignores capitals and spaces at the ends.
    *
    * @param {import('mongoose').Document & { customer: { email: string } }} orderDoc - The order.
@@ -105,6 +152,58 @@ export class OrderController {
     const givenEmail = email.trim().toLowerCase()
 
     return givenEmail === orderDoc.customer.email.toLowerCase()
+  }
+
+  /**
+   * The order as a row in the admin's list.
+   *
+   * @param {import('mongoose').Document & object} orderDoc - The order.
+   * @returns {{ number: string, createdAt: Date, status: string, total: number }} What the list shows.
+   */
+  #summaryOf(orderDoc) {
+    return { number: orderDoc.number, createdAt: orderDoc.createdAt, status: orderDoc.status, total: orderDoc.total }
+  }
+
+  /**
+   * Names each field the admin sees, so nothing else in the order is sent.
+   *
+   * @param {import('mongoose').Document & object} orderDoc - The order.
+   * @returns {object} The order for the admin, with the events it can take now.
+   */
+  #detailsOf(orderDoc) {
+    const { name, email, street, postalCode, city } = orderDoc.customer
+
+    return {
+      number: orderDoc.number,
+      createdAt: orderDoc.createdAt,
+      status: orderDoc.status,
+      statusChangedAt: orderDoc.statusChangedAt,
+      customer: { name, email, street, postalCode, city },
+      lines: orderDoc.lines.map((line) => ({ name: line.name, price: line.price, quantity: line.quantity })),
+      subtotal: orderDoc.subtotal,
+      discountCode: orderDoc.discountCode,
+      discount: orderDoc.discount,
+      total: orderDoc.total,
+      allowedEvents: new OrderLifecycle(orderDoc.status).listAllowedEvents(),
+    }
+  }
+
+  /**
+   * An event the order cannot take now becomes 409 with the reason.
+   *
+   * @param {OrderLifecycle} lifecycle - The order's lifecycle, which changes.
+   * @param {string} event - One of ORDER_EVENTS.
+   */
+  #changeStatusOf(lifecycle, event) {
+    try {
+      lifecycle.changeStatus(event)
+    } catch (error) {
+      if (!(error instanceof StatusChangeError)) {
+        throw error
+      }
+
+      throw createError(409, error.message, { cause: error })
+    }
   }
 
   /**

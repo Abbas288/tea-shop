@@ -1,7 +1,9 @@
-import { StateMachine } from 'flowstate-js'
-import { ORDER_STATUSES } from '../constants/orderStatuses.js'
+import { NoTransitionError, StateMachine } from 'flowstate-js'
+import { ORDER_EVENTS, ORDER_STATUSES } from '../constants/orderStatuses.js'
+import { StatusChangeError } from './StatusChangeError.js'
 
 const { RECEIVED, PACKED, SHIPPED, DELIVERED, CANCELLED } = ORDER_STATUSES
+const { PACK, SHIP, DELIVER, CANCEL } = ORDER_EVENTS
 
 /**
  * The steps of an order, kept by a state machine from flowstate-js.
@@ -25,6 +27,33 @@ export class OrderLifecycle {
    */
   get status() {
     return this.#machine.currentStateName
+  }
+
+  /**
+   * Lists the events the order can take now.
+   *
+   * @returns {string[]} Such as ["ship", "cancel"] for a packed order, or [] for a delivered one.
+   */
+  listAllowedEvents() {
+    return this.#machine.listEventNamesFrom(this.status)
+  }
+
+  /**
+   * Moves the order to the step the event leads to.
+   *
+   * @param {string} eventName - One of ORDER_EVENTS, such as "pack".
+   * @throws {StatusChangeError} If the order cannot take the event now, such as "ship" for a received order.
+   */
+  changeStatus(eventName) {
+    try {
+      this.#machine.send(eventName)
+    } catch (error) {
+      if (!(error instanceof NoTransitionError)) {
+        throw error
+      }
+
+      throw new StatusChangeError(this.status, eventName, { cause: error })
+    }
   }
 
   /**
@@ -67,11 +96,11 @@ export class OrderLifecycle {
     }
 
     return machine
-      .defineTransition({ from: RECEIVED, to: PACKED, on: 'pack' })
-      .defineTransition({ from: PACKED, to: SHIPPED, on: 'ship' })
-      .defineTransition({ from: SHIPPED, to: DELIVERED, on: 'deliver' })
-      .defineTransition({ from: RECEIVED, to: CANCELLED, on: 'cancel' })
-      .defineTransition({ from: PACKED, to: CANCELLED, on: 'cancel' })
+      .defineTransition({ from: RECEIVED, to: PACKED, on: PACK })
+      .defineTransition({ from: PACKED, to: SHIPPED, on: SHIP })
+      .defineTransition({ from: SHIPPED, to: DELIVERED, on: DELIVER })
+      .defineTransition({ from: RECEIVED, to: CANCELLED, on: CANCEL })
+      .defineTransition({ from: PACKED, to: CANCELLED, on: CANCEL })
   }
 
   /**

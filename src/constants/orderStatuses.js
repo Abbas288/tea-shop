@@ -9,3 +9,13 @@ export const ORDER_STATUSES = Object.freeze({
   DELIVERED: 'delivered',
   CANCELLED: 'cancelled',
 })
+
+/**
+ * The events that move an order from one step to the next.
+ */
+export const ORDER_EVENTS = Object.freeze({
+  PACK: 'pack',
+  SHIP: 'ship',
+  DELIVER: 'deliver',
+  CANCEL: 'cancel',
+})

@@ -1,0 +1,38 @@
+/*
+ * Our own rules for the admin page. They load after Bootstrap and the Dashboard example's stylesheet and give the page
+ * the shop's font and green from Furni. Furni's own stylesheet is not loaded here: its .btn rule turns every button
+ * into a large black pill, which does not fit the compact table. The files in vendor stay unchanged.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* The shop's font instead of the system font. */
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+/* The top bar in the shop's green instead of Bootstrap's bg-dark. */
+.admin-top-bar {
+  background-color: #3b5d50;
+}
+
+/* The active link in the side menu in the shop's green instead of the example's blue. */
+.sidebar .nav-link.active {
+  color: #3b5d50;
+}
+
+/* The buttons that move an order forward in the shop's green, as Furni's .btn-primary, instead of Bootstrap's blue. */
+.btn-primary {
+  background-color: #3b5d50;
+  border-color: #3b5d50;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: #314d43;
+  border-color: #314d43;
+}
+
+.btn-primary:focus {
+  box-shadow: 0 0 0 0.25rem rgba(59, 93, 80, 0.5);
+}
