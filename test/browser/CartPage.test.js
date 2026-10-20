@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
-import { ApiError } from '../../public/js/model/ApiError.js'
-import { CartStorage } from '../../public/js/model/CartStorage.js'
-import { CartStorageError } from '../../public/js/model/CartStorageError.js'
+import { ApiError } from '../../public/js/services/ApiError.js'
+import { CartStorage } from '../../public/js/services/CartStorage.js'
+import { CartStorageError } from '../../public/js/services/CartStorageError.js'
 import { Product } from '../../public/js/model/Product.js'
 import { ShoppingCartWrapper } from '../../public/js/model/ShoppingCartWrapper.js'
-import { CartPage } from '../../public/js/controller/CartPage.js'
+import { CartPage } from '../../public/js/pages/CartPage.js'
 
 const rooibos = new Product({ name: 'Rooibos', description: 'Red bush tea.', price: 69, image: 'rooibos.webp' })
 const api = {

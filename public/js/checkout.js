@@ -1,8 +1,8 @@
 import './components/tea-checkout/index.js'
-import { ApiClient } from './model/ApiClient.js'
-import { BrowserStorage } from './model/BrowserStorage.js'
-import { CartStorage } from './model/CartStorage.js'
-import { CheckoutPage } from './controller/CheckoutPage.js'
+import { ApiClient } from './services/ApiClient.js'
+import { BrowserStorage } from './services/BrowserStorage.js'
+import { CartStorage } from './services/CartStorage.js'
+import { CheckoutPage } from './pages/CheckoutPage.js'
 
 const checkoutPage = new CheckoutPage(
   new ApiClient(),

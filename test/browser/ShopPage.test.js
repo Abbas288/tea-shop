@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { ApiError } from '../../public/js/model/ApiError.js'
-import { CartStorage } from '../../public/js/model/CartStorage.js'
+import { ApiError } from '../../public/js/services/ApiError.js'
+import { CartStorage } from '../../public/js/services/CartStorage.js'
 import { Product } from '../../public/js/model/Product.js'
 import { ShoppingCartWrapper } from '../../public/js/model/ShoppingCartWrapper.js'
-import { ShopPage } from '../../public/js/controller/ShopPage.js'
+import { ShopPage } from '../../public/js/pages/ShopPage.js'
 
 const rooibos = new Product({ name: 'Rooibos', description: 'Red bush tea.', price: 69, image: 'rooibos.webp' })
 

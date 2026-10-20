@@ -1,8 +1,8 @@
 import './components/tea-cart/index.js'
-import { ApiClient } from './model/ApiClient.js'
-import { BrowserStorage } from './model/BrowserStorage.js'
-import { CartStorage } from './model/CartStorage.js'
-import { CartPage } from './controller/CartPage.js'
+import { ApiClient } from './services/ApiClient.js'
+import { BrowserStorage } from './services/BrowserStorage.js'
+import { CartStorage } from './services/CartStorage.js'
+import { CartPage } from './pages/CartPage.js'
 
 const cartPage = new CartPage(
   new ApiClient(),

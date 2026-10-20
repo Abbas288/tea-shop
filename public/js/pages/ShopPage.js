@@ -1,5 +1,5 @@
-import { ApiError } from '../model/ApiError.js'
-import { CartStorageError } from '../model/CartStorageError.js'
+import { ApiError } from '../services/ApiError.js'
+import { CartStorageError } from '../services/CartStorageError.js'
 import { QuantityError } from '../model/QuantityError.js'
 
 /**
@@ -16,9 +16,9 @@ export class ShopPage {
   /**
    * Shows teas from the API and puts the ones the customer picks in the cart.
    *
-   * @param {import('../model/ApiClient.js').ApiClient} api - Fetches the teas.
+   * @param {import('../services/ApiClient.js').ApiClient} api - Fetches the teas.
    * @param {import('../components/tea-product-list/tea-product-list.js').TeaProductList} productList - Shows them.
-   * @param {import('../model/CartStorage.js').CartStorage} cartStorage - Keeps the cart between pages.
+   * @param {import('../services/CartStorage.js').CartStorage} cartStorage - Keeps the cart between pages.
    * @param {import('../components/tea-cart-toast/tea-cart-toast.js').TeaCartToast} cartToast - Says what happened to the cart.
    */
   constructor(api, productList, cartStorage, cartToast) {

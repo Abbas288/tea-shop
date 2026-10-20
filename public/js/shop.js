@@ -1,9 +1,9 @@
 import './components/tea-product-list/index.js'
 import './components/tea-cart-toast/index.js'
-import { ApiClient } from './model/ApiClient.js'
-import { BrowserStorage } from './model/BrowserStorage.js'
-import { CartStorage } from './model/CartStorage.js'
-import { ShopPage } from './controller/ShopPage.js'
+import { ApiClient } from './services/ApiClient.js'
+import { BrowserStorage } from './services/BrowserStorage.js'
+import { CartStorage } from './services/CartStorage.js'
+import { ShopPage } from './pages/ShopPage.js'
 
 const shopPage = new ShopPage(
   new ApiClient(),

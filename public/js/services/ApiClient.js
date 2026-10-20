@@ -1,5 +1,5 @@
 import { ApiError } from './ApiError.js'
-import { Product } from './Product.js'
+import { Product } from '../model/Product.js'
 
 /**
  * Calls the shop's API. Every problem with the API becomes an ApiError.
@@ -43,7 +43,7 @@ export class ApiClient {
    *
    * @param {{ name: string, email: string, street: string, postalCode: string, city: string }} customer - From the
    *   checkout form.
-   * @param {import('./ShoppingCartWrapper.js').ShoppingCartWrapper} cart - The teas, and the discount code if any.
+   * @param {import('../model/ShoppingCartWrapper.js').ShoppingCartWrapper} cart - The teas, and the discount code if any.
    * @returns {Promise<{ number: string, token: string }>} The order number, and the token for the tracking link.
    * @throws {ApiError} If the server refuses the order (status 400, with a message for the customer), or cannot
    *   answer.

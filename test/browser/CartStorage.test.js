@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { BrowserStorage } from '../../public/js/model/BrowserStorage.js'
-import { CartStorage } from '../../public/js/model/CartStorage.js'
-import { CartStorageError } from '../../public/js/model/CartStorageError.js'
+import { BrowserStorage } from '../../public/js/services/BrowserStorage.js'
+import { CartStorage } from '../../public/js/services/CartStorage.js'
+import { CartStorageError } from '../../public/js/services/CartStorageError.js'
 import { Product } from '../../public/js/model/Product.js'
 import { ShoppingCartWrapper } from '../../public/js/model/ShoppingCartWrapper.js'
 

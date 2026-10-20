@@ -1,5 +1,5 @@
-import { ApiError } from '../model/ApiError.js'
-import { CartStorageError } from '../model/CartStorageError.js'
+import { ApiError } from '../services/ApiError.js'
+import { CartStorageError } from '../services/CartStorageError.js'
 
 /**
  * The checkout page. The server places the order, and the cart is emptied only after the server has saved it.
@@ -16,8 +16,8 @@ export class CheckoutPage {
   /**
    * Gets the parts the page needs.
    *
-   * @param {import('../model/ApiClient.js').ApiClient} api - Gets the teas and places the order.
-   * @param {import('../model/CartStorage.js').CartStorage} cartStorage - Holds the saved cart.
+   * @param {import('../services/ApiClient.js').ApiClient} api - Gets the teas and places the order.
+   * @param {import('../services/CartStorage.js').CartStorage} cartStorage - Holds the saved cart.
    * @param {import('../components/tea-checkout/tea-checkout.js').TeaCheckout} checkoutView - Shows the page.
    */
   constructor(api, cartStorage, checkoutView) {

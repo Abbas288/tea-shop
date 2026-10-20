@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ApiClient } from '../../public/js/model/ApiClient.js'
-import { ApiError } from '../../public/js/model/ApiError.js'
+import { ApiClient } from '../../public/js/services/ApiClient.js'
+import { ApiError } from '../../public/js/services/ApiError.js'
 import { Product } from '../../public/js/model/Product.js'
 import { ShoppingCartWrapper } from '../../public/js/model/ShoppingCartWrapper.js'
 

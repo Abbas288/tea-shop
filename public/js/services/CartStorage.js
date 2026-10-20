@@ -1,6 +1,6 @@
 import { CartStorageError } from './CartStorageError.js'
-import { QuantityError } from './QuantityError.js'
-import { ShoppingCartWrapper } from './ShoppingCartWrapper.js'
+import { QuantityError } from '../model/QuantityError.js'
+import { ShoppingCartWrapper } from '../model/ShoppingCartWrapper.js'
 
 const STORAGE_KEY = 'tea-shop-cart'
 
@@ -41,7 +41,7 @@ export class CartStorage {
    * in another tab.
    *
    * @param {ShoppingCartWrapper} cart - The cart the page shows.
-   * @param {import('./Product.js').Product[]} products - The teas the shop sells.
+   * @param {import('../model/Product.js').Product[]} products - The teas the shop sells.
    * @returns {boolean} True if they differ.
    * @throws {CartStorageError} If the browser does not let the shop read.
    */
@@ -56,7 +56,7 @@ export class CartStorage {
    * cart with nothing left is forgotten with its discount code.
    *
    * @param {ShoppingCartWrapper} orderedCart - The cart that was ordered.
-   * @param {import('./Product.js').Product[]} products - The teas the shop sells.
+   * @param {import('../model/Product.js').Product[]} products - The teas the shop sells.
    * @throws {CartStorageError} If the browser does not let the shop read or save.
    */
   removeOrdered(orderedCart, products) {
@@ -92,7 +92,7 @@ export class CartStorage {
    * The saved cart, with the prices the shop has now. A tea the shop does not sell, or a line or discount that
    * cannot be read, is left out. With nothing saved, the cart is empty.
    *
-   * @param {import('./Product.js').Product[]} products - The teas the shop sells.
+   * @param {import('../model/Product.js').Product[]} products - The teas the shop sells.
    * @returns {ShoppingCartWrapper} A new cart.
    * @throws {CartStorageError} If the browser does not let the shop read.
    */
@@ -119,7 +119,7 @@ export class CartStorage {
    * A tea that is no longer in the saved cart is left alone.
    *
    * @param {ShoppingCartWrapper} savedCart - The cart in the browser now.
-   * @param {import('./CartLine.js').CartLine} orderedLine - One tea of the order.
+   * @param {import('../model/CartLine.js').CartLine} orderedLine - One tea of the order.
    */
   #removeBags(savedCart, orderedLine) {
     const productName = orderedLine.product.name
@@ -195,7 +195,7 @@ export class CartStorage {
    * A saved quantity can be anything the browser holds.
    *
    * @param {ShoppingCartWrapper} cart - The cart being loaded.
-   * @param {import('./Product.js').Product} product - The tea.
+   * @param {import('../model/Product.js').Product} product - The tea.
    * @param {*} quantity - The saved bags.
    */
   #addUnlessInvalid(cart, product, quantity) {
