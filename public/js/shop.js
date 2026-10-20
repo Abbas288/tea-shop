@@ -1,14 +1,13 @@
 import './components/tea-product-list/index.js'
 import './components/tea-cart-toast/index.js'
-import { ApiClient } from './services/ApiClient.js'
-import { BrowserStorage } from './services/BrowserStorage.js'
-import { CartStorage } from './services/CartStorage.js'
+import { apiClientInstance } from './services/apiClientInstance.js'
+import { cartStorageInstance } from './services/cartStorageInstance.js'
 import { ShopPage } from './pages/ShopPage.js'
 
 const shopPage = new ShopPage(
-  new ApiClient(),
+  apiClientInstance,
   document.querySelector('tea-product-list'),
-  new CartStorage(new BrowserStorage()),
+  cartStorageInstance,
   document.querySelector('tea-cart-toast')
 )
 

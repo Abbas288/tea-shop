@@ -1,13 +1,8 @@
 import './components/tea-cart/index.js'
-import { ApiClient } from './services/ApiClient.js'
-import { BrowserStorage } from './services/BrowserStorage.js'
-import { CartStorage } from './services/CartStorage.js'
+import { apiClientInstance } from './services/apiClientInstance.js'
+import { cartStorageInstance } from './services/cartStorageInstance.js'
 import { CartPage } from './pages/CartPage.js'
 
-const cartPage = new CartPage(
-  new ApiClient(),
-  new CartStorage(new BrowserStorage()),
-  document.querySelector('tea-cart')
-)
+const cartPage = new CartPage(apiClientInstance, cartStorageInstance, document.querySelector('tea-cart'))
 
 await cartPage.show()
