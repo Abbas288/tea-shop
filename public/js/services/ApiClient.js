@@ -2,6 +2,11 @@ import { ApiError } from './ApiError.js'
 import { Product } from '../model/Product.js'
 
 /**
+ * @typedef {{ number: string, status: string, statusChangedAt: Date, completedSteps: string[],
+ *   remainingSteps: string[] }} Tracking
+ */
+
+/**
  * Calls the shop's API. Every problem with the API becomes an ApiError.
  */
 export class ApiClient {
@@ -14,11 +19,7 @@ export class ApiClient {
   async getProducts() {
     const productDetails = await this.#requestJson('api/products')
 
-    try {
-      return productDetails.map((details) => new Product(details))
-    } catch (error) {
-      throw new ApiError('The server did not send a list of products.', { cause: error })
-    }
+    return this.#toProducts(productDetails)
   }
 
   /**
@@ -29,9 +30,10 @@ export class ApiClient {
    * @throws {ApiError} If the shop has no such code (status 404), or the server cannot answer.
    */
   async getDiscountCode(text) {
-    const details = await this.#requestJson(`api/discount-codes/${encodeURIComponent(text.trim())}`)
+    const discountCodePath = `api/discount-codes/${encodeURIComponent(text.trim())}`
+    const details = await this.#requestJson(discountCodePath)
 
-    if (typeof details?.code !== 'string' || !Number.isInteger(details?.percent)) {
+    if (!this.#isDiscountCode(details)) {
       throw new ApiError('The server did not send a discount code.')
     }
 
@@ -49,18 +51,9 @@ export class ApiClient {
    *   answer.
    */
   async placeOrder(customer, cart) {
-    const order = {
-      customer,
-      lines: cart.listLines().map((line) => ({ name: line.product.name, quantity: line.quantity })),
-      discountCode: cart.discountCode,
-    }
-    const receipt = await this.#requestJson('api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(order),
-    })
+    const receipt = await this.#postJson('api/orders', this.#toOrder(customer, cart))
 
-    if (typeof receipt?.number !== 'string') {
+    if (!this.#isReceipt(receipt)) {
       throw new ApiError('The server did not send an order number.')
     }
 
@@ -72,35 +65,33 @@ export class ApiClient {
    *
    * @param {string} number - Such as "K7Q2M9XD".
    * @param {string} email - The customer's email address.
-   * @returns {Promise<{ number: string, status: string, statusChangedAt: Date, completedSteps: string[],
-   *   remainingSteps: string[] }>} The status, when it changed, and the steps done and left.
+   * @returns {Promise<Tracking>} The status, when it changed, and the steps done and left.
    * @throws {ApiError} Status 404 for an unknown number or another email address, or if the server cannot answer.
    */
   async getTracking(number, email) {
-    const tracking = await this.#requestJson(`api/orders/${encodeURIComponent(number.trim())}/tracking`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    })
-    const statusChangedAt = new Date(tracking?.statusChangedAt)
-    const isTracking =
-      typeof tracking?.number === 'string' &&
-      typeof tracking?.status === 'string' &&
-      !Number.isNaN(statusChangedAt.getTime()) &&
-      this.#isListOfText(tracking?.completedSteps) &&
-      this.#isListOfText(tracking?.remainingSteps)
+    const trackingPath = `api/orders/${encodeURIComponent(number.trim())}/tracking`
+    const answer = await this.#postJson(trackingPath, { email })
 
-    if (!isTracking) {
+    if (!this.#isTracking(answer)) {
       throw new ApiError('The server did not send where the order is.')
     }
 
-    return {
-      number: tracking.number,
-      status: tracking.status,
-      statusChangedAt,
-      completedSteps: [...tracking.completedSteps],
-      remainingSteps: [...tracking.remainingSteps],
-    }
+    return this.#toTracking(answer)
+  }
+
+  /**
+   * Sends the body as JSON.
+   *
+   * @param {string} path - Such as "api/orders".
+   * @param {object} body - What the server gets.
+   * @returns {Promise<*>} The parsed answer.
+   */
+  #postJson(path, body) {
+    return this.#requestJson(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
   }
 
   /**
@@ -137,19 +128,107 @@ export class ApiClient {
    * @returns {Promise<string>} The server's message, or one that names the status.
    */
   async #errorMessageOf(response, path) {
-    try {
-      const body = await response.json()
+    const body = await this.#jsonBodyOf(response)
 
-      if (typeof body?.message === 'string') {
-        return body.message
-      }
+    if (typeof body?.message === 'string') {
+      return body.message
+    }
+
+    return `The server answered ${response.status} for ${path}.`
+  }
+
+  /**
+   * An error page in HTML or plain text is not JSON.
+   *
+   * @param {Response} response - An answer that is not 2xx.
+   * @returns {Promise<*>} The parsed body, or an empty object if it is not JSON.
+   */
+  async #jsonBodyOf(response) {
+    try {
+      return await response.json()
     } catch (error) {
       if (!(error instanceof SyntaxError)) {
         throw error
       }
-    }
 
-    return `The server answered ${response.status} for ${path}.`
+      return {}
+    }
+  }
+
+  /**
+   * A tea the Product class refuses makes the whole list unusable.
+   *
+   * @param {*} productDetails - The parsed answer.
+   * @returns {Product[]} The teas.
+   * @throws {ApiError} If the answer is not a list of teas.
+   */
+  #toProducts(productDetails) {
+    try {
+      return productDetails.map((details) => new Product(details))
+    } catch (error) {
+      throw new ApiError('The server did not send a list of products.', { cause: error })
+    }
+  }
+
+  /**
+   * The percent must be a whole number.
+   *
+   * @param {*} details - The parsed answer.
+   * @returns {boolean} True for a code with its percent.
+   */
+  #isDiscountCode(details) {
+    return typeof details?.code === 'string' && Number.isInteger(details?.percent)
+  }
+
+  /**
+   * Names and quantities only. The server uses its own prices.
+   *
+   * @param {{ name: string, email: string, street: string, postalCode: string, city: string }} customer - From the
+   *   checkout form.
+   * @param {import('../model/ShoppingCartWrapper.js').ShoppingCartWrapper} cart - The teas, and the discount code if any.
+   * @returns {{ customer: object, lines: Array<{ name: string, quantity: number }>, discountCode: string }} What the
+   *   server gets.
+   */
+  #toOrder(customer, cart) {
+    const lines = cart.listLines().map((line) => ({ name: line.product.name, quantity: line.quantity }))
+
+    return { customer, lines, discountCode: cart.discountCode }
+  }
+
+  /**
+   * Only the order number is needed.
+   *
+   * @param {*} receipt - The parsed answer.
+   * @returns {boolean} True if it has an order number.
+   */
+  #isReceipt(receipt) {
+    return typeof receipt?.number === 'string'
+  }
+
+  /**
+   * Checks each field the tracking page shows.
+   *
+   * @param {*} answer - The parsed answer.
+   * @returns {boolean} True if every field has the right type.
+   */
+  #isTracking(answer) {
+    return (
+      typeof answer?.number === 'string' &&
+      typeof answer?.status === 'string' &&
+      this.#isDate(answer?.statusChangedAt) &&
+      this.#isListOfText(answer?.completedSteps) &&
+      this.#isListOfText(answer?.remainingSteps)
+    )
+  }
+
+  /**
+   * JSON sends a date as text, such as "2026-10-20T10:00:00.000Z".
+   *
+   * @param {*} value - Part of an answer.
+   * @returns {boolean} True if Date can read it.
+   */
+  #isDate(value) {
+    return !Number.isNaN(new Date(value).getTime())
   }
 
   /**
@@ -160,5 +239,21 @@ export class ApiClient {
    */
   #isListOfText(value) {
     return Array.isArray(value) && value.every((item) => typeof item === 'string')
+  }
+
+  /**
+   * Leaves out fields the page does not show, and copies the steps.
+   *
+   * @param {*} answer - An answer #isTracking accepts.
+   * @returns {Tracking} The tracking, with the time as a Date.
+   */
+  #toTracking(answer) {
+    return {
+      number: answer.number,
+      status: answer.status,
+      statusChangedAt: new Date(answer.statusChangedAt),
+      completedSteps: [...answer.completedSteps],
+      remainingSteps: [...answer.remainingSteps],
+    }
   }
 }
