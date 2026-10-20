@@ -63,7 +63,7 @@ const showCheckoutWith = async (bags, placeOrder, storage = memoryStorage()) => 
 
 describe('CheckoutPage', () => {
   it('empties the cart only after the server has saved the order', async () => {
-    const receipt = { number: 'K7Q2M9XD', token: 'secret' }
+    const receipt = { number: 'K7Q2M9XD' }
     let confirmOrder
     const response = new Promise((resolve) => {
       confirmOrder = resolve
@@ -106,7 +106,7 @@ describe('CheckoutPage', () => {
 
   it('shows the receipt even if the browser does not let the shop empty the cart', async () => {
     const storage = memoryStorage()
-    const receipt = { number: 'K7Q2M9XD', token: 'secret' }
+    const receipt = { number: 'K7Q2M9XD' }
 
     storage.removeItem = () => {
       throw new DOMException('Access is denied.', 'SecurityError')
@@ -142,7 +142,7 @@ describe('CheckoutPage', () => {
       cartInOtherTab.add(rooibos, 1)
       cartStorage.save(cartInOtherTab)
 
-      return { number: 'K7Q2M9XD', token: 'secret' }
+      return { number: 'K7Q2M9XD' }
     })
     const placeOrder = checkoutView.onPlaceOrder.mock.calls[0][0]
 

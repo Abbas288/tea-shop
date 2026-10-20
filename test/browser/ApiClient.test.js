@@ -37,7 +37,7 @@ describe('ApiClient', () => {
 
   it('sends the order with the teas and the discount code, but no prices', async () => {
     const cart = new ShoppingCartWrapper()
-    const receipt = { number: 'K7Q2M9XD', token: 'secret' }
+    const receipt = { number: 'K7Q2M9XD' }
 
     cart.add(new Product(rooibos), 2)
     cart.applyDiscount('SAVE10', 10)
@@ -53,6 +53,24 @@ describe('ApiClient', () => {
       discountCode: 'SAVE10',
     })
     expect(confirmation).toEqual(receipt)
+  })
+
+  it('sends the email address for tracking in the body, never in the address', async () => {
+    answerWith(200, {
+      number: 'K7Q2M9XD',
+      status: 'packed',
+      statusChangedAt: '2026-10-20T10:00:00.000Z',
+      completedSteps: ['received', 'packed'],
+      remainingSteps: ['shipped', 'delivered'],
+    })
+
+    const tracking = await new ApiClient().getTracking('K7Q2M9XD', 'ada@example.se')
+
+    const [path, { method, body }] = fetch.mock.lastCall
+
+    expect([path, method]).toEqual(['api/orders/K7Q2M9XD/tracking', 'POST'])
+    expect(JSON.parse(body)).toEqual({ email: 'ada@example.se' })
+    expect(tracking.statusChangedAt).toEqual(new Date('2026-10-20T10:00:00.000Z'))
   })
 
   it('throws an ApiError when the server answers with an error', async () => {

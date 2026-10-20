@@ -82,10 +82,10 @@ export class TeaCheckout extends TeaElement {
   /**
    * Opens the thank-you page for the order.
    *
-   * @param {{ number: string, token: string }} receipt - The order number and the token for the tracking link.
+   * @param {{ number: string }} receipt - The order number.
    */
-  goToReceipt({ number, token }) {
-    const receiptParameters = new URLSearchParams({ number, token })
+  goToReceipt({ number }) {
+    const receiptParameters = new URLSearchParams({ number })
 
     window.location.assign(`thankyou?${receiptParameters}`)
   }

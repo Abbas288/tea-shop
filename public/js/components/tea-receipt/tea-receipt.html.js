@@ -28,7 +28,7 @@ htmlTemplate.innerHTML = `
         <h2 class="display-3 text-black">Thank you!</h2>
         <p class="lead mb-3" id="receipt-message">Your order number is <strong id="order-number">-</strong>.</p>
         <p class="mb-5" id="tracking">
-          Follow your order with this link: <a id="tracking-link" href="track">track your order</a>
+          Follow your order on the <a href="track">tracking page</a> with this number and your email address.
         </p>
         <p><a href="./" class="btn btn-sm btn-outline-black">Back to the shop</a></p>
       </div>

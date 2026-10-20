@@ -1,8 +1,9 @@
 import { ShoppingCart } from '1dv610-laboration-2'
 import mongoose from 'mongoose'
-import { customAlphabet, nanoid } from 'nanoid'
+import { customAlphabet } from 'nanoid'
 import validator from 'validator'
 import { ORDER_RULES } from '../constants/orderRules.js'
+import { ORDER_STATUSES } from '../constants/orderStatuses.js'
 import { BASE_SCHEMA } from './baseSchema.js'
 
 const { isEmail } = validator
@@ -78,67 +79,42 @@ const lineSchema = new mongoose.Schema(
   { _id: false, strict: 'throw' }
 )
 
-const convertOptions = {
-  versionKey: false,
-
-  /**
-   * Leaves out the database id and the secret token. Replaces the base schema's toJSON for orders.
-   *
-   * @param {object} _doc - The mongoose document.
-   * @param {object} ret - The plain copy.
-   * @returns {object} The copy, without _id and token.
-   */
-  transform: (_doc, ret) => {
-    delete ret._id
-    delete ret.token
-
-    return ret
+const schema = new mongoose.Schema({
+  number: {
+    type: String,
+    required: true,
+    // Also applied to lookups. A search for " k7q2m9xd" finds K7Q2M9XD.
+    trim: true,
+    uppercase: true,
+    unique: true,
+    /**
+     * Random, not counted up, and cannot be guessed from other orders.
+     *
+     * @returns {string} Such as "K7Q2M9XD".
+     */
+    default: () => createOrderNumber(),
   },
-}
-
-const schema = new mongoose.Schema(
-  {
-    number: {
-      type: String,
-      required: true,
-      unique: true,
-      /**
-       * Random, not counted up, and cannot be guessed from other orders.
-       *
-       * @returns {string} Such as "K7Q2M9XD".
-       */
-      default: () => createOrderNumber(),
-    },
-    token: {
-      type: String,
-      required: true,
-      /**
-       * The secret in the tracking link.
-       *
-       * @returns {string} 21 random characters.
-       */
-      default: () => nanoid(),
-    },
-    customer: { type: customerSchema, required: [true, 'Enter your delivery details.'] },
-    lines: {
-      type: [lineSchema],
-      validate: [
-        { validator: hasLines, message: 'The cart is empty.' },
-        { validator: hasEachTeaOnce, message: 'The cart has a tea twice.' },
-      ],
-    },
-    subtotal: { type: Number, required: true },
-    discountCode: { type: String, default: '' },
-    discountPercent: { type: Number, default: 0 },
-    discount: { type: Number, required: true },
-    total: { type: Number, required: true },
-    status: { type: String, required: true, default: 'received' },
-    statusChangedAt: { type: Date, required: true, default: Date.now },
+  customer: { type: customerSchema, required: [true, 'Enter your delivery details.'] },
+  lines: {
+    type: [lineSchema],
+    validate: [
+      { validator: hasLines, message: 'The cart is empty.' },
+      { validator: hasEachTeaOnce, message: 'The cart has a tea twice.' },
+    ],
   },
-  {
-    toJSON: convertOptions,
-  }
-)
+  subtotal: { type: Number, required: true },
+  discountCode: { type: String, default: '' },
+  discountPercent: { type: Number, default: 0 },
+  discount: { type: Number, required: true },
+  total: { type: Number, required: true },
+  status: {
+    type: String,
+    required: true,
+    enum: Object.values(ORDER_STATUSES),
+    default: ORDER_STATUSES.RECEIVED,
+  },
+  statusChangedAt: { type: Date, required: true, default: Date.now },
+})
 
 schema.add(BASE_SCHEMA)
 

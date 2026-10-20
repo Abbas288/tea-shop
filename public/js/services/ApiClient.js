@@ -44,7 +44,7 @@ export class ApiClient {
    * @param {{ name: string, email: string, street: string, postalCode: string, city: string }} customer - From the
    *   checkout form.
    * @param {import('../model/ShoppingCartWrapper.js').ShoppingCartWrapper} cart - The teas, and the discount code if any.
-   * @returns {Promise<{ number: string, token: string }>} The order number, and the token for the tracking link.
+   * @returns {Promise<{ number: string }>} The order number.
    * @throws {ApiError} If the server refuses the order (status 400, with a message for the customer), or cannot
    *   answer.
    */
@@ -60,11 +60,47 @@ export class ApiClient {
       body: JSON.stringify(order),
     })
 
-    if (typeof receipt?.number !== 'string' || typeof receipt?.token !== 'string') {
+    if (typeof receipt?.number !== 'string') {
       throw new ApiError('The server did not send an order number.')
     }
 
-    return { number: receipt.number, token: receipt.token }
+    return { number: receipt.number }
+  }
+
+  /**
+   * Fetches where the order is. The email address goes in the body, never in the address.
+   *
+   * @param {string} number - Such as "K7Q2M9XD".
+   * @param {string} email - The customer's email address.
+   * @returns {Promise<{ number: string, status: string, statusChangedAt: Date, completedSteps: string[],
+   *   remainingSteps: string[] }>} The status, when it changed, and the steps done and left.
+   * @throws {ApiError} Status 404 for an unknown number or another email address, or if the server cannot answer.
+   */
+  async getTracking(number, email) {
+    const tracking = await this.#requestJson(`api/orders/${encodeURIComponent(number.trim())}/tracking`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    })
+    const statusChangedAt = new Date(tracking?.statusChangedAt)
+    const isTracking =
+      typeof tracking?.number === 'string' &&
+      typeof tracking?.status === 'string' &&
+      !Number.isNaN(statusChangedAt.getTime()) &&
+      this.#isListOfText(tracking?.completedSteps) &&
+      this.#isListOfText(tracking?.remainingSteps)
+
+    if (!isTracking) {
+      throw new ApiError('The server did not send where the order is.')
+    }
+
+    return {
+      number: tracking.number,
+      status: tracking.status,
+      statusChangedAt,
+      completedSteps: [...tracking.completedSteps],
+      remainingSteps: [...tracking.remainingSteps],
+    }
   }
 
   /**
@@ -114,5 +150,15 @@ export class ApiClient {
     }
 
     return `The server answered ${response.status} for ${path}.`
+  }
+
+  /**
+   * Also true for an empty array.
+   *
+   * @param {*} value - Part of an answer.
+   * @returns {boolean} True for an array of strings.
+   */
+  #isListOfText(value) {
+    return Array.isArray(value) && value.every((item) => typeof item === 'string')
   }
 }

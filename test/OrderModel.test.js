@@ -13,15 +13,13 @@ const rooibos = { name: 'Rooibos', price: 69, quantity: 1 }
 const order = { customer, lines: [rooibos] }
 
 describe('OrderModel', () => {
-  it('trims the customer details and gets a number and a token', async () => {
+  it('trims the customer details and gets a number', async () => {
     const document = new OrderModel({ ...order, customer: { ...customer, name: ' Ada Lind ' } })
 
     await document.validate()
 
     expect(document.customer.name).toBe('Ada Lind')
     expect(document.number).toMatch(/^[A-HJ-NP-Z2-9]{8}$/)
-    expect(document.token).toBeTypeOf('string')
-    expect(document.token).toMatch(/^[\w-]{21}$/)
   })
 
   it.each([

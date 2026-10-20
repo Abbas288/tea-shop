@@ -51,43 +51,7 @@
     </header>
 
     <main class="untree_co-section">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-md-8">
-            <div class="p-3 p-lg-5 border bg-white">
-              <p class="mb-1">Order <strong id="order-number">-</strong></p>
-              <p class="mb-1">Status: <strong id="order-status">received</strong></p>
-              <p class="text-muted small mb-4">Last updated: <span id="last-updated">-</span></p>
-              <table class="table site-block-order-table mb-0">
-                <thead>
-                  <tr>
-                    <th>Step</th>
-                    <th>Done</th>
-                  </tr>
-                </thead>
-                <tbody id="steps">
-                  <tr>
-                    <td>received</td>
-                    <td>yes</td>
-                  </tr>
-                  <tr>
-                    <td>packed</td>
-                    <td>no</td>
-                  </tr>
-                  <tr>
-                    <td>shipped</td>
-                    <td>no</td>
-                  </tr>
-                  <tr>
-                    <td>delivered</td>
-                    <td>no</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
+      <tea-order-tracker></tea-order-tracker>
     </main>
 
     <footer class="footer-section">
@@ -112,5 +76,6 @@
     </footer>
 
     <script src="vendor/furni/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="js/track.js"></script>
   </body>
 </html>

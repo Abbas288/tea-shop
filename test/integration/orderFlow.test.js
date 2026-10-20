@@ -16,6 +16,22 @@ const customer = {
 }
 const lines = [{ name: 'Rooibos', quantity: 1 }]
 
+/**
+ * Places an order.
+ *
+ * @returns {Promise<{ number: string }>} The receipt.
+ */
+const placeOrder = async () => (await request(app).post('/api/orders').send({ customer, lines })).body
+
+/**
+ * Asks for the tracking with the body the form sends.
+ *
+ * @param {string} number - The order number.
+ * @param {*} body - Such as { email: 'ada@example.se' }.
+ * @returns {import('supertest').Test} The request.
+ */
+const track = (number, body) => request(app).post(`/api/orders/${number}/tracking`).send(body)
+
 describe('An order through the app and MongoDB', () => {
   let mongo
 
@@ -30,7 +46,7 @@ describe('An order through the app and MongoDB', () => {
     await mongo.stop()
   })
 
-  it('is priced by the server and saved with a number and a token', async () => {
+  it('is priced by the server and saved with a number', async () => {
     const response = await request(app)
       .post('/api/orders')
       .send({
@@ -47,7 +63,6 @@ describe('An order through the app and MongoDB', () => {
     const saved = await OrderModel.findOne({ number: response.body.number })
 
     expect(saved).not.toBeNull()
-    expect(saved.token).toBe(response.body.token)
     expect([saved.subtotal, saved.discountCode, saved.discountPercent, saved.discount, saved.total]).toEqual([
       227,
       'SAVE10',
@@ -56,7 +71,6 @@ describe('An order through the app and MongoDB', () => {
       204,
     ])
     expect(saved.status).toBe('received')
-    expect(saved.toJSON()).not.toHaveProperty('token')
     expect(saved.createdAt).toBeInstanceOf(Date)
   })
 
@@ -87,5 +101,53 @@ describe('An order through the app and MongoDB', () => {
 
     expect(saved).not.toBeNull()
     expect(saved.customer.toObject()).not.toHaveProperty('isAdmin')
+  })
+
+  it('tracks an order with its number and email address, without anything about the customer', async () => {
+    const receipt = await placeOrder()
+
+    const response = await track(receipt.number, { email: customer.email })
+
+    expect(response.status).toBe(200)
+    expect(Object.keys(response.body).sort()).toEqual([
+      'completedSteps',
+      'number',
+      'remainingSteps',
+      'status',
+      'statusChangedAt',
+    ])
+    expect(response.body).toMatchObject({
+      number: receipt.number,
+      status: 'received',
+      completedSteps: ['received'],
+      remainingSteps: ['packed', 'shipped', 'delivered'],
+    })
+  })
+
+  it.each([
+    ['another email address', (number) => track(number, { email: 'eve@example.se' })],
+    ['no email address', (number) => track(number, {})],
+    ['an email address that is a query', (number) => track(number, { email: { $ne: null } })],
+    ['an unknown number', () => track('AAAAAAAA', { email: customer.email })],
+  ])('answers 404 without the order for %s', async (_case, askForTracking) => {
+    const receipt = await placeOrder()
+
+    const response = await askForTracking(receipt.number)
+
+    expect(response.status).toBe(404)
+    expect(response.body).not.toHaveProperty('number')
+    expect(response.body.message).toContain('no order')
+  })
+
+  it.each([
+    ['packed', ['received', 'packed'], ['shipped', 'delivered']],
+    ['cancelled', ['received', 'cancelled'], []],
+  ])('shows the steps done and left for an order that is %s', async (status, completedSteps, remainingSteps) => {
+    const receipt = await placeOrder()
+    await OrderModel.updateOne({ number: receipt.number }, { status })
+
+    const response = await track(receipt.number, { email: customer.email })
+
+    expect(response.body).toMatchObject({ status, completedSteps, remainingSteps })
   })
 })
