@@ -80,6 +80,26 @@ export class ApiClient {
   }
 
   /**
+   * Logs the admin in. The browser keeps the session cookie the server sends.
+   *
+   * @param {string} email - The admin's email address.
+   * @param {string} password - The admin's password.
+   * @throws {ApiError} Status 401 for a wrong email address or password, or if the server cannot answer.
+   */
+  async logIn(email, password) {
+    await this.#postJson('api/admin/login', { email, password })
+  }
+
+  /**
+   * Ends the admin's session.
+   *
+   * @throws {ApiError} If the server cannot answer.
+   */
+  async logOut() {
+    await this.#postJson('api/admin/logout', {})
+  }
+
+  /**
    * Sends the body as JSON.
    *
    * @param {string} path - Such as "api/orders".
@@ -100,7 +120,7 @@ export class ApiClient {
    *
    * @param {string} path - Such as "api/products".
    * @param {object} [options] - The method, headers and body, as fetch takes them.
-   * @returns {Promise<*>} The parsed answer.
+   * @returns {Promise<*>} The parsed answer, or undefined for an answer without content (204).
    */
   async #requestJson(path, options) {
     try {
@@ -108,6 +128,10 @@ export class ApiClient {
 
       if (!response.ok) {
         throw new ApiError(await this.#errorMessageOf(response, path), { status: response.status })
+      }
+
+      if (response.status === 204) {
+        return undefined
       }
 
       return await response.json()

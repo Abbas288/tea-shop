@@ -1,4 +1,4 @@
-import { cssTemplate } from './shop.css.js'
+import { cssTemplate as shopCssTemplate } from './shop.css.js'
 
 /**
  * A shop component: its markup in a shadow root with the shop's stylesheets. It stays hidden until the stylesheets
@@ -8,11 +8,12 @@ export class TeaElement extends HTMLElement {
   #stylesheetsLoaded
 
   /**
-   * Builds the shadow root from the shop's stylesheets and the component's markup.
+   * Builds the shadow root from the stylesheets and the component's markup.
    *
    * @param {HTMLTemplateElement} htmlTemplate - The component's markup.
+   * @param {HTMLTemplateElement} [cssTemplate] - Links to the stylesheets. The shop pages' by default.
    */
-  constructor(htmlTemplate) {
+  constructor(htmlTemplate, cssTemplate = shopCssTemplate) {
     super()
 
     this.attachShadow({ mode: 'open' })

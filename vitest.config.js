@@ -7,4 +7,8 @@ export default defineConfig({
       '../../modules/shopping-cart/index.js': '1dv610-laboration-2',
     },
   },
+  test: {
+    // The tests never read .env, and the session middleware needs a secret.
+    env: { SESSION_SECRET: 'a-secret-for-the-tests' },
+  },
 })
