@@ -51,6 +51,26 @@
   }
 }
 
+/* Furni's desktop cell padding and image column otherwise make the cart scroll sideways on tablets. */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .site-blocks-table .product-thumbnail {
+    width: 110px;
+  }
+
+  .site-blocks-table .product-thumbnail img {
+    max-width: 90px;
+  }
+
+  .site-blocks-table thead th {
+    padding: 16px 10px;
+    font-size: 16px;
+  }
+
+  .site-blocks-table td {
+    padding: 16px 10px;
+  }
+}
+
 /*
  * Overrides Furni: the add-to-cart icon on .product-item only shows on hover, so it never shows on a touch
  * screen. On a device that cannot hover, it shows all the time.

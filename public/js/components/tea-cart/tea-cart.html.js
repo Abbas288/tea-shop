@@ -25,9 +25,9 @@ htmlTemplate.innerHTML = `
       </div>
     </div>
     <div class="row">
-      <div class="col-md-6 mb-5 mb-md-0">
+      <div class="col-lg-6 mb-5 mb-lg-0">
         <div class="row mb-5">
-          <div class="col-md-6">
+          <div class="col-sm-auto">
             <a class="btn btn-outline-black btn-sm w-100" href="./">Continue shopping</a>
           </div>
         </div>
@@ -53,11 +53,11 @@ htmlTemplate.innerHTML = `
           </div>
         </form>
       </div>
-      <div class="col-md-6 ps-md-5">
+      <div class="col-lg-6 ps-lg-5">
         <div class="row justify-content-end">
-          <div class="col-md-7">
+          <div class="col-12">
             <div class="row">
-              <div class="col-md-12 text-md-end border-bottom mb-5">
+              <div class="col-md-12 text-lg-end border-bottom mb-5">
                 <h2 class="text-black h4 text-uppercase">Cart totals</h2>
               </div>
             </div>
@@ -96,7 +96,7 @@ htmlTemplate.innerHTML = `
       <td class="product-name" data-label="Tea"><h2 class="h5 text-black line-name"></h2></td>
       <td class="line-price" data-label="Price"></td>
       <td data-label="Quantity">
-        <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px">
+        <div class="input-group mb-0 d-flex flex-nowrap align-items-center quantity-container" style="max-width: 120px">
           <button class="btn btn-outline-black decrease" type="button">&minus;</button>
           <input type="text" class="form-control text-center quantity-amount" inputmode="numeric" />
           <button class="btn btn-outline-black increase" type="button">&plus;</button>
