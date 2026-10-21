@@ -156,3 +156,48 @@
 .footer-section .copyright p a {
   text-decoration: underline;
 }
+
+/*
+ * The decorative cup is shown from Bootstrap's lg breakpoint. Its fixed-width wrapper anchors both the image and
+ * the dots, so the pattern stays behind the handle when the desktop layout changes.
+ */
+.hero .hero-img-wrap {
+  width: 520px;
+  max-width: 100%;
+  /* Keep the cup's lower edge in place when scaling the illustration down. */
+  transform: translateY(70px) scale(0.8);
+  transform-origin: top left;
+}
+
+.hero .hero-img-wrap img {
+  width: 100%;
+  left: 0;
+  right: auto;
+}
+
+.hero .hero-img-wrap::after {
+  /* The pattern's bottom-left corner meets the centre of the handle opening. */
+  top: -30px;
+  left: 87.5%;
+  right: auto;
+}
+
+@media (min-width: 992px) {
+  .hero .hero-img-wrap img {
+    top: 70px;
+  }
+}
+
+/* Keep the additional 10% reduction between Bootstrap's lg and xl breakpoints. */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .hero .hero-img-wrap {
+    transform: translateY(63px) scale(0.72);
+  }
+}
+
+/*
+ * Keeps the decoration from adding horizontal scrolling without clipping the cup below the hero.
+ */
+.hero {
+  overflow-x: clip;
+}
