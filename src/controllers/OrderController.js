@@ -6,7 +6,8 @@ import { OrderModel } from '../models/OrderModel.js'
 import { ProductModel } from '../models/ProductModel.js'
 import { StatusChangeError } from '../models/StatusChangeError.js'
 
-const ORDER_NOT_FOUND = 'There is no order with this number and email address.'
+// One message for an unknown number and for a wrong email address. Tracking does not tell which one was wrong.
+const ORDER_NOT_FOUND = 'There is no order to show.'
 
 /**
  * Handles the requests about orders.
