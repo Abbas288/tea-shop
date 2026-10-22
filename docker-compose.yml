@@ -1,0 +1,16 @@
+name: tea-shop
+
+services:
+  app:
+    image: ${APP_IMAGE:-tea-shop:local}
+    build:
+      context: .
+      target: production
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    ports:
+      - '127.0.0.1:${APP_PORT:-8080}:3000'
+    init: true
+    restart: unless-stopped
